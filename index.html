@@ -410,6 +410,17 @@ select option{background:var(--surface);color:var(--ink)}
 .logo .cosmi-o{width:1.02em;height:1.02em;border-radius:0;background:transparent;box-shadow:none}
 .top h1.home-brand .cosmi-wordmark{font:700 28px var(--ui);letter-spacing:-.045em;color:var(--ink)}
 @media(max-width:700px){.top h1.home-brand .cosmi-o{width:.94em;height:.94em}}
+
+/* Make the planet occupy the O's actual character slot instead of touching adjacent letters */
+.cosmi-wordmark{display:inline-flex!important;align-items:baseline;gap:0;line-height:1;white-space:nowrap;letter-spacing:-.02em}
+.cosmi-wordmark .cosmi-o{display:inline-block;flex:0 0 .78em;width:.78em;height:.78em;max-width:.78em;object-fit:contain;vertical-align:baseline;margin:0 .045em;transform:translateY(.09em);border:0;border-radius:0;background:transparent;box-shadow:none}
+.logo .cosmi-wordmark{font:700 26px/1 var(--ui);letter-spacing:-.02em}
+.logo .cosmi-wordmark .cosmi-o{flex-basis:.78em;width:.78em;height:.78em}
+.top h1.home-brand .cosmi-wordmark{font:700 28px/1 var(--ui);letter-spacing:-.02em}
+.top h1.home-brand .cosmi-wordmark .cosmi-o{flex-basis:.78em;width:.78em;height:.78em}
+@media(max-width:700px){
+ .top h1.home-brand .cosmi-wordmark .cosmi-o{flex-basis:.78em;width:.78em;height:.78em;max-width:.78em}
+}
 </style>
 </head>
 <body>
