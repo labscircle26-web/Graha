@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Graha – talk astrology (Copy)</title>
-<meta name="theme-color" content="#F7F4F9" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#120D1A" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#120D1A" id="browserThemeColor"><script>try{document.documentElement.dataset.theme=localStorage.getItem("graha-theme")||"dark"}catch(e){document.documentElement.dataset.theme="dark"}</script>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#F3EFF7;--surface:#fff;--ink:#2A1B3D;--muted:#6F6283;--line:#DCD3E7;--accent:#E8A317;--accent-ink:#2A1B3D;--rose:#B8456B;
+:root{color-scheme:dark;--bg:#17111f;--surface:#211832;--ink:#EFE8F7;--muted:#A99BBD;--line:#35294B;--accent:#F0B13A;--accent-ink:#241A2F;--rose:#E27A9F;
 --ui:'Bricolage Grotesque',system-ui,sans-serif;--body:'Newsreader',Georgia,serif;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17111f;--surface:#211832;--ink:#EFE8F7;--muted:#A99BBD;--line:#35294B;--accent:#F0B13A;--rose:#E27A9F}}
@@ -81,7 +81,7 @@ nav{position:fixed;bottom:0;left:0;right:0;top:auto;height:auto;flex-direction:r
 nav .logo{display:none}nav button{flex-direction:column;gap:0;padding:4px 10px;font-size:12px;border-radius:12px}
 main{padding-bottom:70px}}
 @media (prefers-reduced-motion:no-preference){.post,.q{animation:in .25s ease-out}@keyframes in{from{opacity:.4}}}
-:root{--bg:#F7F4F9;--ink:#241633;--muted:#74688A;--line:#E6DFEE;--accent:#D49A24}
+:root{color-scheme:dark;--bg:#120D1A;--surface:#1A1326;--ink:#F1EAF8;--muted:#A094B5;--line:#2C2140;--accent:#E9B64A;--accent-ink:#241A2F;--rose:#E27A9F}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#120D1A;--surface:#1A1326;--ink:#F1EAF8;--muted:#A094B5;--line:#2C2140;--accent:#E9B64A}}
 :root[data-theme="dark"]{--bg:#120D1A;--surface:#1A1326;--ink:#F1EAF8;--muted:#A094B5;--line:#2C2140;--accent:#E9B64A}
 ::selection{background:color-mix(in srgb,var(--accent) 40%,transparent)}
@@ -204,6 +204,11 @@ select option{background:var(--surface);color:var(--ink)}
 .sky .sky-note{font:500 11px var(--ui);color:var(--muted);margin:3px 0 0}
 @media(max-width:700px){select{min-height:40px;padding-top:7px;padding-bottom:7px}}
 
+
+:root[data-theme="light"]{color-scheme:light;--bg:#F7F4F9;--surface:#fff;--ink:#241633;--muted:#74688A;--line:#E6DFEE;--accent:#D49A24;--accent-ink:#241633;--rose:#B8456B}
+.theme-toggle{flex:none;border:1px solid color-mix(in srgb,var(--accent) 38%,var(--line));background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 10px;font:500 11px var(--ui);white-space:nowrap;cursor:pointer;transition:border-color .18s,background .18s}
+.theme-toggle:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,var(--surface))}
+.skyhead{flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -211,7 +216,7 @@ select option{background:var(--surface);color:var(--ink)}
 <div id="toast" role="status" aria-live="polite"></div><button id="fab" data-act="fab" aria-label="New post" hidden><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><nav id="nav"></nav>
 <main><div class="top"><h1 id="ttl"></h1><div class="seg" id="role" aria-label="Preview as"></div></div><div id="view"></div></main>
 <aside>
-<div class="sky"><div class="skyhead"><h2>Today’s sky</h2><select id="chartStyle" aria-label="Chart style"><option value="north" selected>North Indian</option><option value="south">South Indian</option><option value="western">Western (current)</option></select></div><p>Current planetary positions · sidereal (Lahiri)</p>
+<div class="sky"><div class="skyhead"><h2>Today’s sky</h2><button type="button" id="themeToggle" class="theme-toggle" aria-label="Switch to light theme">☼ Light</button><select id="chartStyle" aria-label="Chart style"><option value="north" selected>North Indian</option><option value="south">South Indian</option><option value="western">Western (current)</option></select></div><p>Current planetary positions · sidereal (Lahiri)</p>
 <svg id="wheel" viewBox="0 0 240 240" role="img" aria-label="Live sidereal planetary chart"></svg>
 <ul id="planetPositions" aria-live="polite"></ul>
 <div id="skyUpdated" class="sky-updated">Calculating current positions…</div>
@@ -410,6 +415,9 @@ function drawChart(style){
   w.innerHTML=h;
 }
 $('#chartStyle')?.addEventListener('change',e=>{chartStyle=e.target.value;drawChart(chartStyle)});
+function setGrahaTheme(theme){document.documentElement.dataset.theme=theme;try{localStorage.setItem('graha-theme',theme)}catch(e){}const b=$('#themeToggle');if(b){b.textContent=theme==='dark'?'☼ Light':'☾ Dark';b.setAttribute('aria-label',theme==='dark'?'Switch to light theme':'Switch to dark theme')}const m=$('#browserThemeColor');if(m)m.content=theme==='dark'?'#120D1A':'#F7F4F9'}
+$('#themeToggle')?.addEventListener('click',()=>setGrahaTheme(document.documentElement.dataset.theme==='dark'?'light':'dark'));
+setGrahaTheme(document.documentElement.dataset.theme||'dark');
 updatePlanetPanel();
 setInterval(updatePlanetPanel,60000);
 render();
