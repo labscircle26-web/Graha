@@ -633,6 +633,7 @@ function renderCityResults(items){
   cityResults._items=items;cityResults.hidden=!items.length;
 }
 cityInput?.addEventListener('input',()=>{
+  citySelectionVersion++;
   const q=cityInput.value.trim();clearTimeout(citySearchTimer);
   if(q.length<2){cityResults.hidden=true;return}
   citySearchTimer=setTimeout(async()=>{
