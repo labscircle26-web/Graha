@@ -483,15 +483,18 @@ window.visualViewport?.addEventListener('scroll',syncComposerToVisibleViewport);
 window.addEventListener('resize',syncComposerToVisibleViewport);
 document.addEventListener('focusin',e=>focusComposerField(e.target));
 function render(){const v=S.view;
+const app=document.querySelector('.app'),aside=app?.querySelector(':scope > aside');
+let skyCard=app?.querySelector('.sky');
+if(v!=='sky'&&aside&&skyCard&&skyCard.parentElement!==aside)aside.insertBefore(skyCard,aside.firstChild);
 $('#nav').innerHTML=`<div class="logo">Graha<i>.</i></div>`+NAV.map(n=>`<button data-act="nav" data-id="${n[0]}" class="${v===n[0]?'on':''}"><span class="g">${n[1]}</span>${n[2]}</button>`).join('');
 $('#ttl').textContent=v==='home'?'Graha.':TT[v];$('#fab').hidden=v!=='home';document.querySelector('.app')?.classList.toggle('sky-view',v==='sky');$('#role').style.display='none';
 $('#topPopover').hidden=!S.topPanel;if(S.topPanel){$('#topPopoverTitle').textContent=S.topPanel==='notifications'?'Notifications':'Direct messages';$('#topPopoverText').textContent=S.topPanel==='notifications'?'You’re all caught up. New activity will appear here.':'Direct messages are not available yet.'}
 $('#view').innerHTML={home,sky:liveSky,ask,pros,me}[v]();
-const app=document.querySelector('.app'),aside=app?.querySelector(':scope > aside'),skyCard=aside?.querySelector('.sky');
 if(v==='sky'){
+ skyCard=app?.querySelector('.sky');
  const host=$('#liveSkyHost');
  if(host&&skyCard)host.appendChild(skyCard);
-}else if(aside&&skyCard&&skyCard.parentElement!==aside){aside.insertBefore(skyCard,aside.firstChild)}
+}
 }
 document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b){if(S.menu!=null){S.menu=null;render()}return}const a=b.dataset.act,id=b.dataset.id,m=S.menu;if(a!=='rpm')S.menu=null;
 if(a==='topPanel'){S.topPanel=S.topPanel===id?null:id;render();return}else if(a==='nav'){S.topPanel=null;S.view=id;if(id==='me'){S.profileUser='you';S.profileTab='posts';S.ed=false}}else if(a==='role'){S.role=id;S.profileUser='you';S.profileTab='posts';S.ed=false}else if(a==='viewProfile'){S.profileUser=id;S.profileTab='posts';S.ed=false;S.view='me'}else if(a==='profileTab'){S.profileTab=id}else if(a==='editProfile'){S.ed=!S.ed}else if(a==='cancelProfileEdit'){S.ed=false}else if(a==='saveProfile'){if(saveProfile()){S.ed=false;toast('Profile saved')}}else if(a==='threadMode'){S.threadMode=!S.threadMode;if(S.threadMode)S.threadDrafts=[S.draft||''];else S.draft=S.threadDrafts[0]||''}else if(a==='addThreadPart'){if(S.threadDrafts.length>=25){toast('Threads can have up to 25 posts');return}S.threadDrafts.push('')}else if(a==='tab')S.tab=id;else if(a==='tag')S.tag=S.tag===id?null:id;
