@@ -322,14 +322,15 @@ nav button[data-id="sky"]{display:none}
 .profile-role-control .seg{display:flex}
 @media(max-width:700px){.top{padding:12px 16px}.top h1{font-size:22px}.top-actions{gap:7px}.top-icon{width:36px;height:36px}}
 
-/* Mobile Live sky: switch from grid to normal flow so the chart sits directly under its header */
+/* Live sky moves into the main page on mobile, so it cannot inherit sidebar/grid spacing */
 @media(max-width:700px){
  html body .app.sky-view{display:block!important;width:100%;height:auto!important;min-height:0!important}
- html body .app.sky-view main{display:block!important;width:100%;height:auto!important;min-height:0!important;margin:0!important;border:0!important};padding-bottom:0!important
- html body .app.sky-view main #view{display:none!important}
+ html body .app.sky-view main{display:block!important;width:100%!important;height:auto!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important}
+ html body .app.sky-view main #view{display:block!important;margin:0!important;padding:8px 14px calc(92px + env(safe-area-inset-bottom,0px))!important}
+ html body .app.sky-view main #liveSkyHost{display:block;width:100%;margin:0;padding:0}
+ html body .app.sky-view main #liveSkyHost>.sky{display:block;width:100%;margin:0!important;border-radius:20px;padding:16px}
+ html body .app.sky-view aside{display:none!important}
  html body .app.sky-view #role{display:none!important}
- html body .app.sky-view aside{display:block!important;position:static!important;inset:auto!important;align-self:auto!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;overflow:visible!important;padding:8px 14px calc(92px + env(safe-area-inset-bottom,0px))!important}
- html body .app.sky-view aside .sky{margin:0!important;width:100%;border-radius:20px;padding:16px}
  html body .app.sky-view #wheel{width:100%;max-width:430px;margin:12px auto}
 }
 </style>
@@ -399,7 +400,7 @@ ${S.composeOpen?'<div class="compose-backdrop" data-act="closeComposer"></div>':
 <div class="row"><div class="media-tools"><button type="button" class="media-add" data-act="chooseImages">▧ Add photos</button><input id="postImages" type="file" accept="image/*" multiple hidden></div><details class="tag-picker"><summary id="tagSummary">Tags: None</summary><div class="tag-options">${TAGS.map(tag=>`<label><input type="checkbox" data-post-tag="${tag}"${S.ptags.includes(tag)?' checked':''}><span>${tag}</span></label>`).join('')}</div></details><div class="rg">${S.role==='astrologer'?`<label class="fc"><input type="checkbox" id="fcb"${S.fc?' checked':''}>Forecast</label>`:''}<button class="btn" data-act="post">Post</button></div></div></div></div>
 ${L.length?L.map(post).join(''):`<div class="empty">No posts here yet. Follow astrologers or start the conversation.</div>`}`}
 
-function liveSky(){return '<div class="live-sky-route-label">Current sidereal planetary positions and chart tools.</div>'}
+function liveSky(){return '<div id="liveSkyHost"></div>'}
 function ask(){const a=S.role==='astrologer';
 return `<div class="box">${av('you')}<div style="flex:1"><textarea id="qd" placeholder="Ask a question. Add your birth details if you want a personal answer." aria-label="Your question">${esc(S.qd)}</textarea>
 <div class="row"><select id="qtag" aria-label="Category">${opts(TAGS,S.qtag)}</select><button class="btn" data-act="ask">Ask question</button></div></div></div>
@@ -485,7 +486,13 @@ function render(){const v=S.view;
 $('#nav').innerHTML=`<div class="logo">Graha<i>.</i></div>`+NAV.map(n=>`<button data-act="nav" data-id="${n[0]}" class="${v===n[0]?'on':''}"><span class="g">${n[1]}</span>${n[2]}</button>`).join('');
 $('#ttl').textContent=v==='home'?'Graha.':TT[v];$('#fab').hidden=v!=='home';document.querySelector('.app')?.classList.toggle('sky-view',v==='sky');$('#role').style.display='none';
 $('#topPopover').hidden=!S.topPanel;if(S.topPanel){$('#topPopoverTitle').textContent=S.topPanel==='notifications'?'Notifications':'Direct messages';$('#topPopoverText').textContent=S.topPanel==='notifications'?'You’re all caught up. New activity will appear here.':'Direct messages are not available yet.'}
-$('#view').innerHTML={home,sky:liveSky,ask,pros,me}[v]()}
+$('#view').innerHTML={home,sky:liveSky,ask,pros,me}[v]();
+const app=document.querySelector('.app'),aside=app?.querySelector(':scope > aside'),skyCard=aside?.querySelector('.sky');
+if(v==='sky'){
+ const host=$('#liveSkyHost');
+ if(host&&skyCard)host.appendChild(skyCard);
+}else if(aside&&skyCard&&skyCard.parentElement!==aside){aside.insertBefore(skyCard,aside.firstChild)}
+}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b){if(S.menu!=null){S.menu=null;render()}return}const a=b.dataset.act,id=b.dataset.id,m=S.menu;if(a!=='rpm')S.menu=null;
 if(a==='topPanel'){S.topPanel=S.topPanel===id?null:id;render();return}else if(a==='nav'){S.topPanel=null;S.view=id;if(id==='me'){S.profileUser='you';S.profileTab='posts';S.ed=false}}else if(a==='role'){S.role=id;S.profileUser='you';S.profileTab='posts';S.ed=false}else if(a==='viewProfile'){S.profileUser=id;S.profileTab='posts';S.ed=false;S.view='me'}else if(a==='profileTab'){S.profileTab=id}else if(a==='editProfile'){S.ed=!S.ed}else if(a==='cancelProfileEdit'){S.ed=false}else if(a==='saveProfile'){if(saveProfile()){S.ed=false;toast('Profile saved')}}else if(a==='threadMode'){S.threadMode=!S.threadMode;if(S.threadMode)S.threadDrafts=[S.draft||''];else S.draft=S.threadDrafts[0]||''}else if(a==='addThreadPart'){if(S.threadDrafts.length>=25){toast('Threads can have up to 25 posts');return}S.threadDrafts.push('')}else if(a==='tab')S.tab=id;else if(a==='tag')S.tag=S.tag===id?null:id;
 else if(a==='rpm')S.menu=m===+id?null:+id;else if(a==='rp'){const n=+id;if(S.rp.has(n)){S.rp.delete(n);S.posts=S.posts.filter(x=>x.rp!==n);toast('Repost removed')}else{S.rp.add(n);S.posts.unshift({id:Date.now(),a:'you',rp:n,g:[],l:0,r:0,w:'now'});toast('Reposted')}}else if(a==='quote'){S.quote=+id;S.view='home';S.composeOpen=true;setTimeout(()=>{syncComposerToVisibleViewport();const d=$('#draft');d&&d.focus()},80)}else if(a==='unquote')S.quote=null;else if(a==='fab'){S.composeOpen=true;S.view='home';S.profileUser='you';setTimeout(()=>{syncComposerToVisibleViewport();$('#draft')?.focus({preventScroll:true})},80)}else if(a==='closeComposer'){S.composeOpen=false}else if(a==='pin'){S.pin=S.pin===+id?null:+id;toast(S.pin?'Pinned to your profile':'Unpinned')}else if(a==='edit')S.ed=!S.ed;else if(a==='save'){saveLinks();S.ed=false;toast('Profile saved')}else if(a==='fol')S.fol.has(id)?S.fol.delete(id):S.fol.add(id);
