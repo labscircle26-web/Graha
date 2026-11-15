@@ -371,6 +371,26 @@ select option{background:var(--surface);color:var(--ink)}
  .app>.mobile-nav button.on .g{color:var(--accent);opacity:1}
  .app>.mobile-nav button:active{background:color-mix(in srgb,var(--accent) 8%,transparent)!important}
 }
+
+/* Mobile feed cards: edge-to-edge X-like content geometry, Graha styling retained */
+@media(max-width:700px){
+ .post{
+  width:100%;box-sizing:border-box;
+  padding:14px 10px 16px;
+  gap:14px;
+  border-bottom:1px solid color-mix(in srgb,var(--line) 72%,transparent);
+  background:transparent;
+ }
+ .post:hover{background:transparent}
+ .post .av{width:48px;height:48px;font-size:17px}
+ .post .bd{min-width:0;flex:1}
+ .post .txt{margin:3px 0 9px;line-height:1.42}
+ .post .tg{margin:0 0 9px;gap:6px}
+ .post .acts{justify-content:space-between;align-items:center;gap:12px;padding-right:2px}
+ .post.fcp{background:color-mix(in srgb,var(--accent) 2.5%,transparent);box-shadow:inset 2px 0 0 color-mix(in srgb,var(--accent) 78%,transparent)}
+ .post .post-gallery{width:100%;margin:10px 0 12px}
+ .post .gallery-track{width:100%}
+}
 </style>
 </head>
 <body>
