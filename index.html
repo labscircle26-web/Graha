@@ -203,6 +203,9 @@ select option{background:var(--surface);color:var(--ink)}
 .sky .sky-updated{font:500 11px var(--ui);color:var(--muted);margin:10px 0 0}
 .sky .sky-note{font:500 11px var(--ui);color:var(--muted);margin:3px 0 0}
 @media(max-width:700px){select{min-height:40px;padding-top:7px;padding-bottom:7px}}
+/* Keep the chart selector wide enough for its label and chevron */
+.skyhead select{width:154px;max-width:100%;min-width:154px;flex:0 0 154px;padding:7px 34px 7px 14px;background-position:right 12px center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:700px){.skyhead select{width:154px;min-width:154px;max-width:100%;padding-right:34px}}
 
 
 :root[data-theme="light"]{color-scheme:light;--bg:#F7F4F9;--surface:#fff;--ink:#241633;--muted:#74688A;--line:#E6DFEE;--accent:#D49A24;--accent-ink:#241633;--rose:#B8456B}
@@ -271,7 +274,6 @@ function home(){let L=S.posts.filter(p=>(S.tab==='explore'||S.fol.has(p.a)||p.a=
 return `<div class="skym"><span>☉</span><span><b>Sun in Scorpio</b> · live transits coming soon</span></div><div class="tabs"><button data-act="tab" data-id="explore" class="${S.tab==='explore'?'on':''}">Explore</button><button data-act="tab" data-id="following" class="${S.tab==='following'?'on':''}">Following</button></div>
 <div class="box">${av('you')}<div style="flex:1"><textarea id="draft" placeholder="Share a transit, a chart insight, or a thought" aria-label="New post">${esc(S.draft)}</textarea>${S.quote?qt(S.quote,1):''}
 <div class="row"><select id="ptag" aria-label="Tag">${opts(TAGS,S.ptag)}</select><div class="rg">${S.role==='astrologer'?`<label class="fc"><input type="checkbox" id="fcb"${S.fc?' checked':''}>Forecast</label>`:''}<button class="btn" data-act="post">Post</button></div></div></div></div>
-<div class="chips">${TAGS.map(t=>`<button class="chip${S.tag===t?' on':''}" data-act="tag" data-id="${t}">${t}</button>`).join('')}</div>
 ${L.length?L.map(post).join(''):`<div class="empty">No posts here yet. Follow an astrologer or clear the tag filter.</div>`}`}
 function ask(){const a=S.role==='astrologer';
 return `<div class="box">${av('you')}<div style="flex:1"><textarea id="qd" placeholder="Ask a question. Add your birth details if you want a personal answer." aria-label="Your question">${esc(S.qd)}</textarea>
