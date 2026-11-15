@@ -323,8 +323,8 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 const av=id=>`<div class="av" style="background:${U[id].c}" aria-hidden="true">${U[id].n[0]}</div>`;
 const nm=(id,e)=>{const u=U[id],v=u.v||(id==='you'&&S.role==='astrologer');return `<span class="who">${esc(u.n)}${v?ICON:''} <span>@${u.h}${e||''}</span></span>`};
 const opts=(l,c)=>l.map(x=>`<option${x===c?' selected':''}>${x}</option>`).join('');
-const NAV=[['home','☉','Home'],['transits','☿','Transits'],['predictions','✧','Predictions'],['ask','☽','Ask'],['pros','✦','Astrologers'],['me','♄','Profile']];
-const TT={home:'Home',transits:'Transit discussions',predictions:'Predictions',ask:'Ask an astrologer',pros:'Astrologers',me:'Profile'};
+const NAV=[['home','☉','Home'],['transits','☿','Transits'],['predictions','✧','Predictor'],['ask','☽','Ask'],['pros','✦','Astrologers'],['me','♄','Profile']];
+const TT={home:'Home',transits:'Transit discussions',predictions:'Predictor',ask:'Ask an astrologer',pros:'Astrologers',me:'Profile'};
 function post(p){if(p.rp){const o=S.posts.find(x=>x.id===p.rp);return o?`<div class="rpl">${IRP}You reposted</div>`+post(o):''}return `<article class="post${p.f?' fcp':''}">${av(p.a)}<div class="bd">${S.pin===p.id&&p.a==='you'?`<div class="fl">${IPIN}Pinned</div>`:''}${p.f?`<div class="fl">${ISTAR}Forecast</div>`:''}${nm(p.a,' · '+p.w)}<div class="txt">${esc(p.t)}</div>${qt(p.q)}<div class="tg">${p.g.map(g=>`<b>${g}</b>`).join('')}</div>
 <div class="acts"><span>${p.r} replies</span><span class="rpw"><button data-act="rpm" data-id="${p.id}" class="${S.rp.has(p.id)?'on2':''}" aria-haspopup="menu" aria-expanded="${S.menu===p.id}" aria-label="Repost or quote">${IRP}<span>${((p.s||0)+(S.rp.has(p.id)?1:0))||''}</span></button>${S.menu===p.id?`<div class="menu" role="menu"><button role="menuitem" data-act="rp" data-id="${p.id}">${IRP}${S.rp.has(p.id)?'Undo repost':'Repost'}</button><button role="menuitem" data-act="quote" data-id="${p.id}">${IQ}Quote</button></div>`:''}</span><button data-act="like" data-id="${p.id}" class="${S.liked.has(p.id)?'on':''}" aria-pressed="${S.liked.has(p.id)}">${IH}<span>${p.l+(S.liked.has(p.id)?1:0)}</span></button>${p.a==='you'&&S.role==='astrologer'&&!p.rp?`<button data-act="pin" data-id="${p.id}" class="${S.pin===p.id?'on2':''}" aria-pressed="${S.pin===p.id}" aria-label="Pin to profile">${IPIN}</button>`:''}</div></div></article>`}
 function home(){let L=S.posts.filter(p=>(S.tab==='explore'||S.fol.has(p.a)||p.a==='you')&&(!S.tag||p.g.includes(S.tag)));
@@ -351,7 +351,7 @@ function transits(){
 function predictions(){
  const items=S.predictions.slice().sort((a,b)=>b.id-a.id);
  const open=items.filter(p=>p.status==='Open').length;
- return `<div class="feature-intro"><span class="hint">ACCOUNTABILITY · FOLLOW-THROUGH</span><h2>Predictions</h2><p>Publish a prediction with a defined time window. Once that period ends, add the outcome and supporting evidence.</p><div class="prediction-stats"><div><strong>${items.length}</strong><span>Total</span></div><div><strong>${open}</strong><span>Active</span></div><div><strong>${items.length-open}</strong><span>Reviewed</span></div></div></div>
+ return `<div class="feature-intro"><span class="hint">ACCOUNTABILITY · FOLLOW-THROUGH</span><h2>Predictor</h2><p>Publish a prediction with a defined time window. Once that period ends, add the outcome and supporting evidence.</p><div class="prediction-stats"><div><strong>${items.length}</strong><span>Total</span></div><div><strong>${open}</strong><span>Active</span></div><div><strong>${items.length-open}</strong><span>Reviewed</span></div></div></div>
  <section class="feature-form"><h3>Make a prediction</h3><div class="ed">
  <label>Prediction<input id="prTitle" maxlength="140" placeholder="Make it specific and testable"></label>
  <label>Astrological reasoning<textarea id="prReason" maxlength="1000" placeholder="Transit, dasha, houses, aspects and why…"></textarea></label>
