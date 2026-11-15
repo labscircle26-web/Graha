@@ -114,6 +114,7 @@ nav button.on .g{color:var(--accent)}
 .empty{padding:64px 24px;font-style:italic;font-size:18px}
 .sky{border-radius:24px;padding:22px;background:linear-gradient(180deg,var(--surface),color-mix(in srgb,var(--surface) 70%,var(--bg)))}
 .sky h2{font:500 22px var(--body)}
+.skyhead{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:2px}.skyhead h2{margin:0}.skyhead select{width:112px;max-width:52%;min-width:0;padding:4px 7px;font-size:12px}
 #wheel circle:nth-of-type(1){stroke:var(--accent);stroke-width:1.2}
 #toast{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);background:var(--ink);color:var(--bg);padding:10px 20px;border-radius:999px;font:500 14px var(--ui);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:20}
 #toast.on{opacity:1;transform:translate(-50%,0)}
@@ -169,7 +170,7 @@ nav button .g{font-size:21px}nav button:not(.on) .g{opacity:.7}
 <div id="toast" role="status" aria-live="polite"></div><button id="fab" data-act="fab" aria-label="New post" hidden><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><nav id="nav"></nav>
 <main><div class="top"><h1 id="ttl"></h1><div class="seg" id="role" aria-label="Preview as"></div></div><div id="view"></div></main>
 <aside>
-<div class="sky"><h2>Today’s sky</h2><p>Sample data. Live transits arrive with the ephemeris phase.</p>
+<div class="sky"><div class="skyhead"><h2>Today’s sky</h2><select id="chartStyle" aria-label="Chart style"><option value="north" selected>North Indian</option><option value="south">South Indian</option><option value="western">Western (current)</option></select></div><p>Sample data. Live transits arrive with the ephemeris phase.</p>
 <svg id="wheel" viewBox="-110 -110 220 220" role="img" aria-label="Zodiac wheel"></svg>
 <ul><li>Sun<span>Scorpio</span></li><li>Moon<span>Sagittarius (sample)</span></li><li>Mercury<span>Scorpio (sample)</span></li></ul></div>
 </aside>
@@ -250,13 +251,68 @@ else if(a==='ask'){const t=S.qd.trim();if(!t)return;S.qs.unshift({id:Date.now(),
 else if(a==='ans'){const t=(S.ad[id]||'').trim();if(!t)return;S.qs.find(q=>q.id==id).a.push({b:'you',t});S.ad[id]='';toast('Answer posted')}
 render()});
 document.addEventListener('input',e=>{const t=e.target;if(t.id==='draft')S.draft=t.value;else if(t.id==='qd')S.qd=t.value;else if(t.dataset.q)S.ad[t.dataset.q]=t.value});
-document.addEventListener('change',e=>{if(e.target.id==='ptag')S.ptag=e.target.value;if(e.target.id==='fcb')S.fc=e.target.checked;if(e.target.id==='qtag')S.qtag=e.target.value});
-(function(){const g='♈♉♊♋♌♍♎♏♐♑♒♓',w=$('#wheel');let tk='';for(let i=0;i<72;i++){const a=i*Math.PI/36,l=i%6?2.5:5,s=Math.sin(a),c=-Math.cos(a);tk+=`<line x1="${104*s}" y1="${104*c}" x2="${(104+l)*s}" y2="${(104+l)*c}" stroke="var(--muted)" stroke-width=".7" opacity=".6"/>`}let h=tk+`<circle r="104" fill="none" stroke="var(--line)"/><circle r="70" fill="none" stroke="var(--line)"/>`;
-for(let i=0;i<12;i++){const a=i*Math.PI/6,b=a-Math.PI/12,x=87*Math.sin(a),y=-87*Math.cos(a),sc=i===7;
-h+=`<line x1="${70*Math.sin(b)}" y1="${-70*Math.cos(b)}" x2="${104*Math.sin(b)}" y2="${-104*Math.cos(b)}" stroke="var(--line)"/>`;
-if(sc)h+=`<circle cx="${x}" cy="${y}" r="15" fill="var(--accent)"/>`;
-h+=`<text x="${x}" y="${y+6}" text-anchor="middle" font-size="18" fill="${sc?'#2A1B3D':'var(--ink)'}">${g[i]}&#xFE0E;</text>`}
-w.innerHTML=h+`<text y="5" text-anchor="middle" font-size="13" fill="var(--muted)" font-family="sans-serif">Scorpio season</text>`})();
+document.addEventListener('change',e=>{if(e.target.id==='ptag')S.ptag=e.target.value;if(e.target.id==='fcb')S.fc=e.target.checked;if(e.target.id==='qtag')S.qtag=e.target.value;if(e.target.id==='chartStyle'){chartStyle=e.target.value;drawChart(chartStyle)}});
+
+let chartStyle='north';
+function drawChart(style){
+  const w=$('#wheel');
+  const textLabel=(x,y,sign,planet)=>{
+    let s='<text x="'+x+'" y="'+(y-2)+'" text-anchor="middle" font-size="11" font-weight="600" fill="var(--accent)">'+sign+'</text>';
+    if(planet)s+='<text x="'+x+'" y="'+(y+12)+'" text-anchor="middle" font-size="10" font-weight="600" fill="var(--ink)">'+planet+'</text>';
+    return s;
+  };
+  if(style==='western'){
+    w.setAttribute('viewBox','-110 -110 220 220');
+    w.setAttribute('aria-label','Western zodiac wheel');
+    const g='♈♉♊♋♌♍♎♏♐♑♒♓';
+    let tk='';
+    for(let i=0;i<72;i++){
+      const a=i*Math.PI/36,l=i%6?2.5:5,s=Math.sin(a),c=-Math.cos(a);
+      tk+='<line x1="'+(104*s)+'" y1="'+(104*c)+'" x2="'+((104+l)*s)+'" y2="'+((104+l)*c)+'" stroke="var(--muted)" stroke-width=".7" opacity=".6"/>';
+    }
+    let h=tk+'<circle r="104" fill="none" stroke="var(--line)"/><circle r="70" fill="none" stroke="var(--line)"/>';
+    for(let i=0;i<12;i++){
+      const a=i*Math.PI/6,b=a-Math.PI/12,x=87*Math.sin(a),y=-87*Math.cos(a),sc=i===7;
+      h+='<line x1="'+(70*Math.sin(b))+'" y1="'+(-70*Math.cos(b))+'" x2="'+(104*Math.sin(b))+'" y2="'+(-104*Math.cos(b))+'" stroke="var(--line)"/>';
+      if(sc)h+='<circle cx="'+x+'" cy="'+y+'" r="15" fill="var(--accent)"/>';
+      h+='<text x="'+x+'" y="'+(y+6)+'" text-anchor="middle" font-size="18" fill="'+(sc?'#2A1B3D':'var(--ink)')+'">'+g[i]+'&#xFE0E;</text>';
+    }
+    w.innerHTML=h+'<text y="5" text-anchor="middle" font-size="13" fill="var(--muted)" font-family="sans-serif">Scorpio season</text>';
+    return;
+  }
+
+  w.setAttribute('viewBox','0 0 240 240');
+  if(style==='south'){
+    w.setAttribute('aria-label','South Indian Vedic chart');
+    let h='<rect x="10" y="10" width="220" height="220" fill="none" stroke="var(--accent)" stroke-width="1.2"/>';
+    h+='<path d="M65 10V230 M175 10V230 M120 10V65 M120 175V230 M10 65H230 M10 175H230 M10 120H65 M175 120H230" fill="none" stroke="var(--line)" stroke-width="1.2"/>';
+    const signs=[
+      [12,'Pis',37.5,37.5,''],[1,'Ari',92.5,37.5,'La'],[2,'Tau',147.5,37.5,''],[3,'Gem',202.5,37.5,''],
+      [11,'Aqu',37.5,92.5,''],[4,'Can',202.5,92.5,''],
+      [10,'Cap',37.5,147.5,''],[5,'Leo',202.5,147.5,''],
+      [9,'Sag',37.5,202.5,'Mo'],[8,'Sco',92.5,202.5,'Su Me'],[7,'Lib',147.5,202.5,''],[6,'Vir',202.5,202.5,'']
+    ];
+    signs.forEach(c=>{
+      h+='<text x="'+c[2]+'" y="'+(c[3]-4)+'" text-anchor="middle" font-size="9.5" fill="var(--accent)" font-weight="600">'+c[0]+' '+c[1]+'</text>';
+      if(c[4])h+='<text x="'+c[2]+'" y="'+(c[3]+11)+'" text-anchor="middle" font-size="10" fill="var(--ink)" font-weight="600">'+c[4]+'</text>';
+    });
+    h+='<text x="120" y="113" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="sans-serif">SAMPLE</text><text x="120" y="129" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="sans-serif">RASHI CHART</text>';
+    w.innerHTML=h;
+    return;
+  }
+
+  w.setAttribute('aria-label','North Indian Vedic chart');
+  let h='<rect x="10" y="10" width="220" height="220" fill="none" stroke="var(--accent)" stroke-width="1.2"/>';
+  h+='<path d="M10 10L230 230 M230 10L10 230 M120 10L230 120L120 230L10 120Z" fill="none" stroke="var(--line)" stroke-width="1.2"/>';
+  const houses=[
+    [1,120,65,'La'],[2,65,31,''],[3,31,65,''],[4,65,120,''],[5,31,175,''],[6,65,209,''],
+    [7,120,175,''],[8,175,209,'Su Me'],[9,209,175,'Mo'],[10,175,120,''],[11,209,65,''],[12,175,31,'']
+  ];
+  houses.forEach(c=>{h+=textLabel(c[1],c[2],c[0],c[3]);});
+  w.innerHTML=h;
+}
+
+drawChart(chartStyle);
 render();
 </script>
 </body>
