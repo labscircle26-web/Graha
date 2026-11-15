@@ -301,7 +301,7 @@ select option{background:var(--surface);color:var(--ink)}
 nav button[data-id="sky"]{display:none}
 @media(max-width:700px){
  nav button[data-id="sky"]{display:flex}
- .app.sky-view main #view{display:none}
+ .app.sky-view main{min-height:0}.app.sky-view main #view{display:none}
  .app.sky-view #role{display:none}
  .app.sky-view aside{display:block;position:static;top:auto;align-self:stretch;width:100%;height:auto;max-height:none;overflow:visible;padding:14px 14px calc(92px + env(safe-area-inset-bottom,0px))}
  .app.sky-view aside .sky{border-radius:20px;padding:16px}
