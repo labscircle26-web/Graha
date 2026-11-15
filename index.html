@@ -177,6 +177,33 @@ nav button .g{font-size:21px}nav button:not(.on) .g{opacity:.7}
   aside{padding-left:clamp(18px,2vw,32px);padding-right:clamp(18px,2vw,32px)}
 }
 
+
+/* Premium dropdown treatment — preserves existing sizing and layout */
+select{
+  appearance:none;-webkit-appearance:none;
+  min-height:36px;padding:7px 38px 7px 14px;
+  color:var(--ink);
+  background-color:var(--surface);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23B48A38' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 13px center;background-size:14px;
+  border:1px solid color-mix(in srgb,var(--accent) 32%,var(--line));
+  border-radius:999px;
+  box-shadow:0 2px 8px -5px rgba(36,22,51,.35),inset 0 1px 0 rgba(255,255,255,.55);
+  transition:border-color .18s,box-shadow .18s,background-color .18s;
+  font:500 14px var(--ui);cursor:pointer;
+}
+select:hover{border-color:color-mix(in srgb,var(--accent) 72%,var(--line));box-shadow:0 3px 12px -6px var(--accent),inset 0 1px 0 rgba(255,255,255,.55)}
+select:focus-visible{outline:2px solid color-mix(in srgb,var(--accent) 65%,transparent);outline-offset:2px;border-color:var(--accent)}
+select option{background:var(--surface);color:var(--ink)}
+.sky #planetPositions{margin-top:12px}
+.sky #planetPositions li{display:grid;grid-template-columns:minmax(72px,1fr) auto auto;gap:8px;align-items:center;padding:7px 2px;font-size:13px}
+.sky #planetPositions .pl-name{font:600 13px var(--ui);color:var(--ink)}
+.sky #planetPositions .pl-sign{color:var(--muted);text-align:right}
+.sky #planetPositions .pl-degree{font:600 12px var(--ui);color:var(--accent);text-align:right;white-space:nowrap}
+.sky .sky-updated{font:500 11px var(--ui);color:var(--muted);margin:10px 0 0}
+.sky .sky-note{font:500 11px var(--ui);color:var(--muted);margin:3px 0 0}
+@media(max-width:700px){select{min-height:40px;padding-top:7px;padding-bottom:7px}}
+
 </style>
 </head>
 <body>
@@ -184,9 +211,11 @@ nav button .g{font-size:21px}nav button:not(.on) .g{opacity:.7}
 <div id="toast" role="status" aria-live="polite"></div><button id="fab" data-act="fab" aria-label="New post" hidden><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><nav id="nav"></nav>
 <main><div class="top"><h1 id="ttl"></h1><div class="seg" id="role" aria-label="Preview as"></div></div><div id="view"></div></main>
 <aside>
-<div class="sky"><div class="skyhead"><h2>Today’s sky</h2><select id="chartStyle" aria-label="Chart style"><option value="north" selected>North Indian</option><option value="south">South Indian</option><option value="western">Western (current)</option></select></div><p>Sample data. Live transits arrive with the ephemeris phase.</p>
-<svg id="wheel" viewBox="-110 -110 220 220" role="img" aria-label="Zodiac wheel"></svg>
-<ul><li>Sun<span>Scorpio</span></li><li>Moon<span>Sagittarius (sample)</span></li><li>Mercury<span>Scorpio (sample)</span></li></ul></div>
+<div class="sky"><div class="skyhead"><h2>Today’s sky</h2><select id="chartStyle" aria-label="Chart style"><option value="north" selected>North Indian</option><option value="south">South Indian</option><option value="western">Western (current)</option></select></div><p>Current planetary positions · sidereal (Lahiri)</p>
+<svg id="wheel" viewBox="0 0 240 240" role="img" aria-label="Live sidereal planetary chart"></svg>
+<ul id="planetPositions" aria-live="polite"></ul>
+<div id="skyUpdated" class="sky-updated">Calculating current positions…</div>
+<div class="sky-note">Astronomical approximation · refreshed every minute</div></div>
 </aside>
 </div>
 <script>
@@ -267,67 +296,124 @@ render()});
 document.addEventListener('input',e=>{const t=e.target;if(t.id==='draft')S.draft=t.value;else if(t.id==='qd')S.qd=t.value;else if(t.dataset.q)S.ad[t.dataset.q]=t.value});
 document.addEventListener('change',e=>{if(e.target.id==='ptag')S.ptag=e.target.value;if(e.target.id==='fcb')S.fc=e.target.checked;if(e.target.id==='qtag')S.qtag=e.target.value;if(e.target.id==='chartStyle'){chartStyle=e.target.value;drawChart(chartStyle)}});
 
-let chartStyle='north';
-function drawChart(style){
-  const w=$('#wheel');
-  const textLabel=(x,y,sign,planet)=>{
-    let s='<text x="'+x+'" y="'+(y-2)+'" text-anchor="middle" font-size="11" font-weight="600" fill="var(--accent)">'+sign+'</text>';
-    if(planet)s+='<text x="'+x+'" y="'+(y+12)+'" text-anchor="middle" font-size="10" font-weight="600" fill="var(--ink)">'+planet+'</text>';
-    return s;
-  };
-  if(style==='western'){
-    w.setAttribute('viewBox','-110 -110 220 220');
-    w.setAttribute('aria-label','Western zodiac wheel');
-    const g='♈♉♊♋♌♍♎♏♐♑♒♓';
-    let tk='';
-    for(let i=0;i<72;i++){
-      const a=i*Math.PI/36,l=i%6?2.5:5,s=Math.sin(a),c=-Math.cos(a);
-      tk+='<line x1="'+(104*s)+'" y1="'+(104*c)+'" x2="'+((104+l)*s)+'" y2="'+((104+l)*c)+'" stroke="var(--muted)" stroke-width=".7" opacity=".6"/>';
-    }
-    let h=tk+'<circle r="104" fill="none" stroke="var(--line)"/><circle r="70" fill="none" stroke="var(--line)"/>';
-    for(let i=0;i<12;i++){
-      const a=i*Math.PI/6,b=a-Math.PI/12,x=87*Math.sin(a),y=-87*Math.cos(a),sc=i===7;
-      h+='<line x1="'+(70*Math.sin(b))+'" y1="'+(-70*Math.cos(b))+'" x2="'+(104*Math.sin(b))+'" y2="'+(-104*Math.cos(b))+'" stroke="var(--line)"/>';
-      if(sc)h+='<circle cx="'+x+'" cy="'+y+'" r="15" fill="var(--accent)"/>';
-      h+='<text x="'+x+'" y="'+(y+6)+'" text-anchor="middle" font-size="18" fill="'+(sc?'#2A1B3D':'var(--ink)')+'">'+g[i]+'&#xFE0E;</text>';
-    }
-    w.innerHTML=h+'<text y="5" text-anchor="middle" font-size="13" fill="var(--muted)" font-family="sans-serif">Scorpio season</text>';
-    return;
-  }
 
+// LIVE_SIDEREAL_ENGINE_V1
+let chartStyle='north';
+const ZODIAC=['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+const ZSHORT=['Ari','Tau','Gem','Can','Leo','Vir','Lib','Sco','Sag','Cap','Aqu','Pis'];
+const PLANET_META=[
+  ['Sun','Su'],['Moon','Mo'],['Mercury','Me'],['Venus','Ve'],['Mars','Ma'],
+  ['Jupiter','Ju'],['Saturn','Sa'],['Uranus','Ur'],['Neptune','Ne'],['Rahu','Ra'],['Ketu','Ke']
+];
+const norm360=x=>((x%360)+360)%360;
+const rad=x=>x*Math.PI/180;
+const deg=x=>x*180/Math.PI;
+function orbitalXYZ(el,d){
+  const N=rad(el.N[0]+el.N[1]*d),i=rad(el.i[0]+el.i[1]*d),w=rad(el.w[0]+el.w[1]*d);
+  const a=el.a[0]+(el.a[1]||0)*d,e=el.e[0]+(el.e[1]||0)*d,M=rad(norm360(el.M[0]+el.M[1]*d));
+  let E=M;
+  for(let k=0;k<8;k++) E-=(E-e*Math.sin(E)-M)/(1-e*Math.cos(E));
+  const xv=a*(Math.cos(E)-e),yv=a*Math.sqrt(1-e*e)*Math.sin(E);
+  const v=Math.atan2(yv,xv),r=Math.hypot(xv,yv),vw=v+w;
+  return {x:r*(Math.cos(N)*Math.cos(vw)-Math.sin(N)*Math.sin(vw)*Math.cos(i)),
+          y:r*(Math.sin(N)*Math.cos(vw)+Math.cos(N)*Math.sin(vw)*Math.cos(i)),
+          z:r*Math.sin(vw)*Math.sin(i)};
+}
+const ORBITS={
+ Mercury:{N:[48.3313,3.24587e-5],i:[7.0047,5e-8],w:[29.1241,1.01444e-5],a:[.387098,0],e:[.205635,5.59e-10],M:[168.6562,4.0923344368]},
+ Venus:{N:[76.6799,2.46590e-5],i:[3.3946,2.75e-8],w:[54.8910,1.38374e-5],a:[.723330,0],e:[.006773,-1.302e-9],M:[48.0052,1.6021302244]},
+ Earth:{N:[0,0],i:[0,0],w:[282.9404,4.70935e-5],a:[1,0],e:[.016709,-1.151e-9],M:[356.0470,.9856002585]},
+ Mars:{N:[49.5574,2.11081e-5],i:[1.8497,-1.78e-8],w:[286.5016,2.92961e-5],a:[1.523688,0],e:[.093405,2.516e-9],M:[18.6021,.5240207766]},
+ Jupiter:{N:[100.4542,2.76854e-5],i:[1.3030,-1.557e-7],w:[273.8777,1.64505e-5],a:[5.20256,0],e:[.048498,4.469e-9],M:[19.8950,.0830853001]},
+ Saturn:{N:[113.6634,2.38980e-5],i:[2.4886,-1.081e-7],w:[339.3939,2.97661e-5],a:[9.55475,0],e:[.055546,-9.499e-9],M:[316.9670,.0334442282]},
+ Uranus:{N:[74.0005,1.3978e-5],i:[.7733,1.9e-8],w:[96.6612,3.0565e-5],a:[19.18171,-1.55e-8],e:[.047318,7.45e-9],M:[142.5905,.011725806]},
+ Neptune:{N:[131.7806,3.0173e-5],i:[1.77,-2.55e-7],w:[272.8461,-6.027e-6],a:[30.05826,3.313e-8],e:[.008606,2.15e-9],M:[260.2471,.005995147]}
+};
+function tropicalLongitudes(date){
+  const jd=date.getTime()/86400000+2440587.5,d=jd-2451543.5;
+  const earth=orbitalXYZ(ORBITS.Earth,d),out={};
+  for(const name of Object.keys(ORBITS)){
+    if(name==='Earth')continue;
+    const p=orbitalXYZ(ORBITS[name],d);
+    out[name]=norm360(deg(Math.atan2(p.y-earth.y,p.x-earth.x)));
+  }
+  out.Sun=norm360(out.Earth===undefined?deg(Math.atan2(-earth.y,-earth.x)):out.Earth);
+  // Geocentric lunar orbit; low-order orbital solution.
+  const moon=orbitalXYZ({N:[125.1228,-.0529538083],i:[5.1454,0],w:[318.0634,.1643573223],a:[60.2666,0],e:[.0549,0],M:[115.3654,13.0649929509]},d);
+  out.Moon=norm360(deg(Math.atan2(moon.y,moon.x)));
+  const node=norm360(125.04452-.0529538083*d);
+  out.Rahu=node;out.Ketu=norm360(node+180);
+  return out;
+}
+function siderealPositions(date){
+  const tropical=tropicalLongitudes(date);
+  const years=(date.getTime()-Date.UTC(2000,0,1,12))/31557600000;
+  const ayanamsa=23.85675+years*.013968;
+  const names=['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Rahu','Ketu'];
+  const now=names.map(name=>({name,lon:norm360(tropical[name]-ayanamsa)}));
+  const future=tropicalLongitudes(new Date(date.getTime()+86400000));
+  return now.map(p=>{
+    const signIndex=Math.floor(p.lon/30),within=p.lon-signIndex*30;
+    const delta=norm180(norm360(future[p.name]-ayanamsa)-p.lon);
+    return {...p,signIndex,degree:Math.floor(within),minute:Math.floor((within-Math.floor(within))*60),retrograde:!['Sun','Moon','Rahu','Ketu'].includes(p.name)&&delta<0};
+  });
+}
+function norm180(x){return x>180?x-360:x<-180?x+360:x}
+let currentPositions=[];
+function updatePlanetPanel(){
+  const now=new Date();currentPositions=siderealPositions(now);
+  const list=$('#planetPositions');
+  if(list)list.innerHTML=currentPositions.map(p=>{
+    const meta=PLANET_META.find(x=>x[0]===p.name),retro=p.retrograde?' ℞':'';
+    return '<li><span class="pl-name">'+meta[1]+' · '+p.name+retro+'</span><span class="pl-sign">'+ZODIAC[p.signIndex]+'</span><span class="pl-degree">'+String(p.degree).padStart(2,'0')+'° '+String(p.minute).padStart(2,'0')+'′</span></li>';
+  }).join('');
+  const stamp=$('#skyUpdated');
+  if(stamp)stamp.textContent='Updated '+now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  drawChart(chartStyle);
+}
+function planetLabelsFor(signIndex){
+  return currentPositions.filter(p=>p.signIndex===signIndex).map(p=>PLANET_META.find(x=>x[0]===p.name)[1]+(p.retrograde?'℞':'')).join(' ');
+}
+function drawChart(style){
+  const w=$('#wheel');if(!w)return;
+  if(style==='western'){
+    w.setAttribute('viewBox','-110 -110 220 220');w.setAttribute('aria-label','Sidereal zodiac wheel with current planetary positions');
+    const glyph=['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
+    let h='';
+    for(let i=0;i<72;i++){const a=i*Math.PI/36,l=i%6?2.5:5,s=Math.sin(a),c=-Math.cos(a);h+='<line x1="'+(104*s)+'" y1="'+(104*c)+'" x2="'+((104+l)*s)+'" y2="'+((104+l)*c)+'" stroke="var(--muted)" stroke-width=".7" opacity=".6"/>'}
+    h+='<circle r="104" fill="none" stroke="var(--line)"/><circle r="70" fill="none" stroke="var(--line)"/>';
+    for(let i=0;i<12;i++){const a=i*Math.PI/6,b=a-Math.PI/12,x=87*Math.sin(a),y=-87*Math.cos(a),items=currentPositions.filter(p=>p.signIndex===i);
+      h+='<line x1="'+(70*Math.sin(b))+'" y1="'+(-70*Math.cos(b))+'" x2="'+(104*Math.sin(b))+'" y2="'+(-104*Math.cos(b))+'" stroke="var(--line)"/>';
+      h+='<text x="'+x+'" y="'+(y+5)+'" text-anchor="middle" font-size="17" fill="var(--ink)">'+glyph[i]+'</text>';
+      if(items.length)h+='<text x="'+x+'" y="'+(y+19)+'" text-anchor="middle" font-size="7.5" font-weight="700" fill="var(--accent)">'+items.map(p=>PLANET_META.find(m=>m[0]===p.name)[1]).join(' ')+'</text>';
+    }
+    w.innerHTML=h;return;
+  }
   w.setAttribute('viewBox','0 0 240 240');
+  const signs=[
+    [12,37.5,37.5],[1,92.5,37.5],[2,147.5,37.5],[3,202.5,37.5],
+    [11,37.5,92.5],[4,202.5,92.5],[10,37.5,147.5],[5,202.5,147.5],
+    [6,37.5,202.5],[7,92.5,202.5],[8,147.5,202.5],[9,202.5,202.5]
+  ];
   if(style==='south'){
-    w.setAttribute('aria-label','South Indian Vedic chart');
+    w.setAttribute('aria-label','South Indian sidereal planetary chart');
     let h='<rect x="10" y="10" width="220" height="220" fill="none" stroke="var(--accent)" stroke-width="1.2"/>';
     h+='<path d="M65 10V230 M175 10V230 M120 10V65 M120 175V230 M10 65H230 M10 175H230 M10 120H65 M175 120H230" fill="none" stroke="var(--line)" stroke-width="1.2"/>';
-    const signs=[
-      [12,'Pis',37.5,37.5,''],[1,'Ari',92.5,37.5,'La'],[2,'Tau',147.5,37.5,''],[3,'Gem',202.5,37.5,''],
-      [11,'Aqu',37.5,92.5,''],[4,'Can',202.5,92.5,''],
-      [10,'Cap',37.5,147.5,''],[5,'Leo',202.5,147.5,''],
-      [6,'Vir',37.5,202.5,''],[7,'Lib',92.5,202.5,''],[8,'Sco',147.5,202.5,'Su Me'],[9,'Sag',202.5,202.5,'Mo']
-    ];
-    signs.forEach(c=>{
-      h+='<text x="'+c[2]+'" y="'+(c[3]-4)+'" text-anchor="middle" font-size="9.5" fill="var(--accent)" font-weight="600">'+c[0]+' '+c[1]+'</text>';
-      if(c[4])h+='<text x="'+c[2]+'" y="'+(c[3]+11)+'" text-anchor="middle" font-size="10" fill="var(--ink)" font-weight="600">'+c[4]+'</text>';
-    });
-    h+='<text x="120" y="113" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="sans-serif">SAMPLE</text><text x="120" y="129" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="sans-serif">RASHI CHART</text>';
-    w.innerHTML=h;
-    return;
+    signs.forEach(c=>{const i=c[0]-1,items=planetLabelsFor(i);h+='<text x="'+c[1]+'" y="'+(c[2]-5)+'" text-anchor="middle" font-size="9.5" fill="var(--accent)" font-weight="600">'+c[0]+' '+ZSHORT[i]+'</text>';if(items)h+='<text x="'+c[1]+'" y="'+(c[2]+10)+'" text-anchor="middle" font-size="9" fill="var(--ink)" font-weight="600">'+items+'</text>'});
+    h+='<text x="120" y="113" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="sans-serif">CURRENT</text><text x="120" y="129" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="sans-serif">SIDEREAL SKY</text>';
+    w.innerHTML=h;return;
   }
-
-  w.setAttribute('aria-label','North Indian Vedic chart');
-  let h='<rect x="10" y="10" width="220" height="220" fill="none" stroke="var(--accent)" stroke-width="1.2"/>';
-  h+='<path d="M10 10L230 230 M230 10L10 230 M120 10L230 120L120 230L10 120Z" fill="none" stroke="var(--line)" stroke-width="1.2"/>';
-  const houses=[
-    [1,120,65,'La'],[2,65,31,''],[3,31,65,''],[4,65,120,''],[5,31,175,''],[6,65,209,''],
-    [7,120,175,''],[8,175,209,'Su Me'],[9,209,175,'Mo'],[10,175,120,''],[11,209,65,''],[12,175,31,'']
-  ];
-  houses.forEach(c=>{h+=textLabel(c[1],c[2],c[0],c[3]);});
+  w.setAttribute('aria-label','North Indian sidereal planetary chart');
+  let h='<rect x="10" y="10" width="220" height="220" fill="none" stroke="var(--accent)" stroke-width="1.2"/><path d="M10 10L230 230 M230 10L10 230 M120 10L230 120L120 230L10 120Z" fill="none" stroke="var(--line)" stroke-width="1.2"/>';
+  const cells=[[1,120,65],[2,65,31],[3,31,65],[4,65,120],[5,31,175],[6,65,209],[7,120,175],[8,175,209],[9,209,175],[10,175,120],[11,209,65],[12,175,31]];
+  cells.forEach(c=>{const i=c[0]-1,items=planetLabelsFor(i);h+='<text x="'+c[1]+'" y="'+(c[2]-5)+'" text-anchor="middle" font-size="10" font-weight="600" fill="var(--accent)">'+c[0]+' '+ZSHORT[i]+'</text>';if(items)h+='<text x="'+c[1]+'" y="'+(c[2]+10)+'" text-anchor="middle" font-size="9" font-weight="600" fill="var(--ink)">'+items+'</text>'});
   w.innerHTML=h;
 }
-
-drawChart(chartStyle);
+$('#chartStyle')?.addEventListener('change',e=>{chartStyle=e.target.value;drawChart(chartStyle)});
+updatePlanetPanel();
+setInterval(updatePlanetPanel,60000);
 render();
+
 </script>
 </body>
 </html>
