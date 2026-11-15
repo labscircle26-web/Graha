@@ -321,6 +321,17 @@ nav button[data-id="sky"]{display:none}
 .profile-role-control{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;padding:12px 0;border-top:1px solid var(--line);font:600 13px var(--ui);color:var(--muted)}
 .profile-role-control .seg{display:flex}
 @media(max-width:700px){.top{padding:12px 16px}.top h1{font-size:22px}.top-actions{gap:7px}.top-icon{width:36px;height:36px}}
+
+/* Mobile Live sky: switch from grid to normal flow so the chart sits directly under its header */
+@media(max-width:700px){
+ html body .app.sky-view{display:block!important;width:100%;height:auto!important;min-height:0!important}
+ html body .app.sky-view main{display:block!important;width:100%;height:auto!important;min-height:0!important;margin:0!important;border:0!important}
+ html body .app.sky-view main #view{display:none!important}
+ html body .app.sky-view #role{display:none!important}
+ html body .app.sky-view aside{display:block!important;position:static!important;inset:auto!important;align-self:auto!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;overflow:visible!important;padding:8px 14px calc(92px + env(safe-area-inset-bottom,0px))!important}
+ html body .app.sky-view aside .sky{margin:0!important;width:100%;border-radius:20px;padding:16px}
+ html body .app.sky-view #wheel{width:100%;max-width:430px;margin:12px auto}
+}
 </style>
 </head>
 <body>
