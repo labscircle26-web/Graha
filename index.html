@@ -284,8 +284,7 @@ riya:{n:'Riya K.',h:'riya_k',t:'Seeker',s:'',v:0,c:'#8A6A2F'},
 you:{n:'You',h:'you',t:'',s:'',v:0,c:'#2A1B3D',st:'open',bio:'',lk:{}}};
 const TAGS=['General Astrology','Vedic','Western','KP Astrology','Transits','Chart Analysis','Dasha','Muhurta','Synastry','Career & Finance','Relationships','Learning'];
 function readGrahaStore(key,fallback){try{const v=JSON.parse(localStorage.getItem(key)||'null');return v??fallback}catch(e){return fallback}}
-const S={view:'home',tab:'explore',role:'seeker',tag:null,fol:new Set(['meera']),liked:new Set(),rp:new Set(),menu:null,quote:null,fc:false,pin:null,ed:false,draft:'',ptag:'General Astrology',qd:'',qtag:'Career',ad:{},
-readGrahaStore('graha-prediction-tracker',[]),discussionDraft:{},predictionDraft:{},
+const S={view:'home',tab:'explore',role:'seeker',tag:null,fol:new Set(['meera']),liked:new Set(),rp:new Set(),menu:null,quote:null,fc:false,pin:null,ed:false,draft:'',ptag:'General Astrology',qd:'',qtag:'Career',ad:{},predictions:readGrahaStore('graha-prediction-tracker',[]),predictionDraft:{},
 posts:[{id:1,a:'meera',t:`Saturn’s long stay in Pisces keeps testing how we build things. In Vedic terms, watch your 10th house and your Saturn dasha before you change jobs.`,g:['Saturn','Career','Vedic'],f:1,l:41,r:6,w:'2h'},
 {id:2,a:'daniel',t:`Synastry tip: don’t stop at Sun signs. Compare Moon to Moon and Venus to Mars first. That’s where day-to-day chemistry shows up.`,g:['Synastry','Moon','Western'],l:67,r:12,w:'5h'},
 {id:3,a:'arjun',t:`Looking for a good window to sign something important this week? Check the Moon’s nakshatra and avoid the hours of Rahu Kalam.`,g:['Muhurta','Moon','Vedic'],f:1,l:23,r:4,w:'9h'},
