@@ -232,6 +232,31 @@ select option{background:var(--surface);color:var(--ink)}
 .theme-toggle{flex:none;border:1px solid color-mix(in srgb,var(--accent) 38%,var(--line));background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 10px;font:500 11px var(--ui);white-space:nowrap;cursor:pointer;transition:border-color .18s,background .18s}
 .theme-toggle:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,var(--surface))}
 .skyhead{flex-wrap:nowrap}
+
+.feature-intro{padding:24px 22px 18px;border-bottom:1px solid var(--line)}
+.feature-intro h2{font:500 27px var(--body);margin:5px 0 4px}
+.feature-intro p{margin:0;color:var(--muted);max-width:680px}
+.feature-form{margin:16px 18px;padding:18px;border:1px solid var(--line);border-radius:18px;background:color-mix(in srgb,var(--surface) 78%,transparent)}
+.feature-form h3{font:600 16px var(--ui);margin:0 0 10px}
+.feature-form .ed{margin-top:0}
+.feature-list{padding:0 18px 24px}
+.feature-card{padding:18px 4px;border-bottom:1px solid var(--line)}
+.feature-card h3{font:500 21px/1.3 var(--body);margin:8px 0}
+.feature-card>p{margin:0 0 10px;white-space:pre-wrap;overflow-wrap:anywhere}
+.feature-meta{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.feature-tag,.status-pill{font:600 12px var(--ui);border-radius:999px;padding:4px 10px;background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent)}
+.status-pill{color:var(--muted);background:var(--surface)}.status-open{color:#3FA37A}.status-closed{color:var(--accent)}
+.feature-replies{margin:12px 0 0 10px;padding-left:12px;border-left:2px solid var(--line)}
+.feature-replies>div{padding:7px 0}.feature-replies b{font:600 12px var(--ui)}.feature-replies p{margin:2px 0}
+.feature-reply,.resolve-row{display:flex;gap:8px;margin-top:12px;align-items:center}
+.feature-reply input,.resolve-row input{flex:1;min-width:0;border:1px solid var(--line);border-radius:999px;background:var(--surface);padding:8px 12px}
+.feature-reply .btn,.resolve-row .btn{white-space:nowrap}
+.prediction-stats{display:flex;gap:24px;margin-top:16px}
+.prediction-stats div{display:grid;gap:0}.prediction-stats strong{font:600 21px var(--ui);color:var(--accent)}.prediction-stats span{font:12px var(--ui);color:var(--muted)}
+.outcome{margin-top:12px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.outcome p{margin:4px 0}.outcome .hint{display:block;margin-top:5px}
+@media(max-width:700px){.feature-intro{padding:20px 16px}.feature-form{margin:12px 12px;padding:14px}.feature-list{padding:0 16px 20px}.feature-reply,.resolve-row{flex-wrap:wrap}.feature-reply input,.resolve-row input{flex-basis:100%}.prediction-stats{gap:20px}}
+
 </style>
 </head>
 <body>
@@ -257,7 +282,10 @@ lena:{n:'Lena Voss',h:'lenavoss',t:'Western',s:'Natal charts (verification pendi
 riya:{n:'Riya K.',h:'riya_k',t:'Seeker',s:'',v:0,c:'#8A6A2F'},
 you:{n:'You',h:'you',t:'',s:'',v:0,c:'#2A1B3D',st:'open',bio:'',lk:{}}};
 const TAGS=['Saturn','Moon','Mercury','Venus','Dasha','Muhurta','Synastry','Career','Vedic','Western'];
+function readGrahaStore(key,fallback){try{const v=JSON.parse(localStorage.getItem(key)||'null');return v??fallback}catch(e){return fallback}}
 const S={view:'home',tab:'explore',role:'seeker',tag:null,fol:new Set(['meera']),liked:new Set(),rp:new Set(),menu:null,quote:null,fc:false,pin:null,ed:false,draft:'',ptag:'Saturn',qd:'',qtag:'Career',ad:{},
+discussions:readGrahaStore('graha-transit-discussions',[{id:101,planet:'Saturn',sign:'Pisces',title:'Saturn in Pisces: what lessons are becoming clearer?',body:'How are you interpreting this transit through houses, aspects and dashas? Share the reasoning behind your view.',author:'meera',created:'Community thread',comments:[{author:'daniel',body:'I would start with the house Saturn occupies and the condition of its dispositor.'}]}]),
+predictions:readGrahaStore('graha-prediction-tracker',[]),discussionDraft:{},predictionDraft:{},
 posts:[{id:1,a:'meera',t:`Saturn’s long stay in Pisces keeps testing how we build things. In Vedic terms, watch your 10th house and your Saturn dasha before you change jobs.`,g:['Saturn','Career','Vedic'],f:1,l:41,r:6,w:'2h'},
 {id:2,a:'daniel',t:`Synastry tip: don’t stop at Sun signs. Compare Moon to Moon and Venus to Mars first. That’s where day-to-day chemistry shows up.`,g:['Synastry','Moon','Western'],l:67,r:12,w:'5h'},
 {id:3,a:'arjun',t:`Looking for a good window to sign something important this week? Check the Moon’s nakshatra and avoid the hours of Rahu Kalam.`,g:['Muhurta','Moon','Vedic'],f:1,l:23,r:4,w:'9h'},
@@ -288,8 +316,8 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 const av=id=>`<div class="av" style="background:${U[id].c}" aria-hidden="true">${U[id].n[0]}</div>`;
 const nm=(id,e)=>{const u=U[id],v=u.v||(id==='you'&&S.role==='astrologer');return `<span class="who">${esc(u.n)}${v?ICON:''} <span>@${u.h}${e||''}</span></span>`};
 const opts=(l,c)=>l.map(x=>`<option${x===c?' selected':''}>${x}</option>`).join('');
-const NAV=[['home','☉','Home'],['ask','☽','Ask'],['pros','✦','Astrologers'],['me','♄','Profile']];
-const TT={home:'Home',ask:'Ask an astrologer',pros:'Astrologers',me:'Profile'};
+const NAV=[['home','☉','Home'],['transits','☿','Transits'],['predictions','✧','Predictions'],['ask','☽','Ask'],['pros','✦','Astrologers'],['me','♄','Profile']];
+const TT={home:'Home',transits:'Transit discussions',predictions:'Prediction tracker',ask:'Ask an astrologer',pros:'Astrologers',me:'Profile'};
 function post(p){if(p.rp){const o=S.posts.find(x=>x.id===p.rp);return o?`<div class="rpl">${IRP}You reposted</div>`+post(o):''}return `<article class="post${p.f?' fcp':''}">${av(p.a)}<div class="bd">${S.pin===p.id&&p.a==='you'?`<div class="fl">${IPIN}Pinned</div>`:''}${p.f?`<div class="fl">${ISTAR}Forecast</div>`:''}${nm(p.a,' · '+p.w)}<div class="txt">${esc(p.t)}</div>${qt(p.q)}<div class="tg">${p.g.map(g=>`<b>${g}</b>`).join('')}</div>
 <div class="acts"><span>${p.r} replies</span><span class="rpw"><button data-act="rpm" data-id="${p.id}" class="${S.rp.has(p.id)?'on2':''}" aria-haspopup="menu" aria-expanded="${S.menu===p.id}" aria-label="Repost or quote">${IRP}<span>${((p.s||0)+(S.rp.has(p.id)?1:0))||''}</span></button>${S.menu===p.id?`<div class="menu" role="menu"><button role="menuitem" data-act="rp" data-id="${p.id}">${IRP}${S.rp.has(p.id)?'Undo repost':'Repost'}</button><button role="menuitem" data-act="quote" data-id="${p.id}">${IQ}Quote</button></div>`:''}</span><button data-act="like" data-id="${p.id}" class="${S.liked.has(p.id)?'on':''}" aria-pressed="${S.liked.has(p.id)}">${IH}<span>${p.l+(S.liked.has(p.id)?1:0)}</span></button>${p.a==='you'&&S.role==='astrologer'&&!p.rp?`<button data-act="pin" data-id="${p.id}" class="${S.pin===p.id?'on2':''}" aria-pressed="${S.pin===p.id}" aria-label="Pin to profile">${IPIN}</button>`:''}</div></div></article>`}
 function home(){let L=S.posts.filter(p=>(S.tab==='explore'||S.fol.has(p.a)||p.a==='you')&&(!S.tag||p.g.includes(S.tag)));
@@ -297,6 +325,35 @@ return `<div class="skym"><span>☉</span><span><b>Sun in Scorpio</b> · live tr
 <div class="box">${av('you')}<div style="flex:1"><textarea id="draft" placeholder="Share a transit, a chart insight, or a thought" aria-label="New post">${esc(S.draft)}</textarea>${S.quote?qt(S.quote,1):''}
 <div class="row"><select id="ptag" aria-label="Tag">${opts(TAGS,S.ptag)}</select><div class="rg">${S.role==='astrologer'?`<label class="fc"><input type="checkbox" id="fcb"${S.fc?' checked':''}>Forecast</label>`:''}<button class="btn" data-act="post">Post</button></div></div></div></div>
 ${L.length?L.map(post).join(''):`<div class="empty">No posts here yet. Follow an astrologer or clear the tag filter.</div>`}`}
+
+function persistGrahaFeature(key,value){try{localStorage.setItem(key,JSON.stringify(value))}catch(e){toast('Could not save on this device')}}
+function transits(){
+ const items=S.discussions.slice().sort((a,b)=>b.id-a.id);
+ return `<div class="feature-intro"><span class="hint">PLANETARY EVENTS · COMMUNITY ANALYSIS</span><h2>Transit discussions</h2><p>Discuss a planetary transit with other members. Add the planet, sign and your interpretation so the thread stays focused.</p></div>
+ <section class="feature-form"><h3>Start a discussion</h3><div class="ed">
+ <label>Planet<select id="tdPlanet">${['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Rahu','Ketu','Uranus','Neptune'].map(x=>`<option>${x}</option>`).join('')}</select></label>
+ <label>Sign / placement<input id="tdSign" maxlength="40" placeholder="e.g. Pisces, 4th house"></label>
+ <label>Discussion title<input id="tdTitle" maxlength="100" placeholder="What would you like to explore?"></label>
+ <label>Your interpretation<textarea id="tdBody" maxlength="1200" placeholder="Share your reasoning, techniques and questions…"></textarea></label>
+ <button class="btn" data-act="newDiscussion">Publish discussion</button></div></section>
+ <div class="feature-list">${items.length?items.map(d=>`<article class="feature-card"><div class="feature-meta"><span class="feature-tag">${esc(d.planet)} · ${esc(d.sign)}</span><span class="hint">${esc(d.created||'Recently')}</span></div><h3>${esc(d.title)}</h3><p>${esc(d.body)}</p><div class="hint">By ${esc(U[d.author]?.n||'You')} · ${d.comments.length} replies</div>
+ <div class="feature-replies">${d.comments.map(c=>`<div><b>${esc(U[c.author]?.n||'You')}</b><p>${esc(c.body)}</p></div>`).join('')}</div>
+ <div class="feature-reply"><input id="tdReply-${d.id}" maxlength="500" placeholder="Add a thoughtful reply…"><button class="btn ghost" data-act="replyDiscussion" data-id="${d.id}">Reply</button></div></article>`).join(''):`<div class="empty">No discussions yet. Start the first one.</div>`}</div>`
+}
+function predictions(){
+ const items=S.predictions.slice().sort((a,b)=>b.id-a.id);
+ const open=items.filter(p=>p.status==='Open').length;
+ return `<div class="feature-intro"><span class="hint">ACCOUNTABILITY · FOLLOW-THROUGH</span><h2>Prediction tracker</h2><p>Record a specific prediction and its deadline. Once the date passes, log the outcome so the community can review the track record.</p><div class="prediction-stats"><div><strong>${items.length}</strong><span>Total</span></div><div><strong>${open}</strong><span>Open</span></div><div><strong>${items.length-open}</strong><span>Resolved</span></div></div></div>
+ <section class="feature-form"><h3>Record a prediction</h3><div class="ed">
+ <label>Prediction<input id="prTitle" maxlength="140" placeholder="Make it specific and testable"></label>
+ <label>Astrological reasoning<textarea id="prReason" maxlength="1000" placeholder="Transit, dasha, houses, aspects and why…"></textarea></label>
+ <label>Expected by<input id="prDate" type="date"></label>
+ <label>Topic<select id="prTopic"><option>World events</option><option>Career & finance</option><option>Relationships</option><option>Politics</option><option>Weather & environment</option><option>Personal / other</option></select></label>
+ <button class="btn" data-act="newPrediction">Save prediction</button></div></section>
+ <div class="feature-list">${items.length?items.map(p=>`<article class="feature-card"><div class="feature-meta"><span class="feature-tag">${esc(p.topic)}</span><span class="status-pill ${p.status==='Open'?'status-open':'status-closed'}">${esc(p.status)}</span></div><h3>${esc(p.title)}</h3><p>${esc(p.reason)}</p><div class="hint">Expected by ${esc(p.date)} · Recorded by You</div>
+ ${p.status==='Open'?`<div class="resolve-row"><select id="prResult-${p.id}"><option value="Occurred">Occurred</option><option value="Partly occurred">Partly occurred</option><option value="Did not occur">Did not occur</option><option value="Inconclusive">Inconclusive</option></select><input id="prNote-${p.id}" maxlength="300" placeholder="Evidence / outcome note (optional)"><button class="btn ghost" data-act="resolvePrediction" data-id="${p.id}">Resolve</button></div>`:`<div class="outcome"><b>Outcome: ${esc(p.result)}</b>${p.note?`<p>${esc(p.note)}</p>`:''}<span class="hint">Resolved ${esc(p.resolved||'')}</span></div>`}</article>`).join(''):`<div class="empty">No predictions recorded yet. Publish one to start building a transparent track record.</div>`}</div>`
+}
+
 function ask(){const a=S.role==='astrologer';
 return `<div class="box">${av('you')}<div style="flex:1"><textarea id="qd" placeholder="Ask a question. Add your birth details if you want a personal answer." aria-label="Your question">${esc(S.qd)}</textarea>
 <div class="row"><select id="qtag" aria-label="Category">${opts(TAGS,S.qtag)}</select><button class="btn" data-act="ask">Ask question</button></div></div></div>
@@ -313,9 +370,9 @@ function render(){const v=S.view;
 $('#nav').innerHTML=`<div class="logo">Graha<i>.</i></div>`+NAV.map(n=>`<button data-act="nav" data-id="${n[0]}" class="${v===n[0]?'on':''}"><span class="g">${n[1]}</span>${n[2]}</button>`).join('');
 $('#ttl').textContent=TT[v];$('#fab').hidden=v!=='home';
 $('#role').innerHTML=['seeker','astrologer'].map(r=>`<button data-act="role" data-id="${r}" class="${S.role===r?'on':''}">${r[0].toUpperCase()+r.slice(1)}</button>`).join('');
-$('#view').innerHTML={home,ask,pros,me}[v]()}
+$('#view').innerHTML={home,transits,predictions,ask,pros,me}[v]()}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b){if(S.menu!=null){S.menu=null;render()}return}const a=b.dataset.act,id=b.dataset.id,m=S.menu;if(a!=='rpm')S.menu=null;
-if(a==='nav')S.view=id;else if(a==='role')S.role=id;else if(a==='tab')S.tab=id;else if(a==='tag')S.tag=S.tag===id?null:id;
+if(a==='nav')S.view=id;else if(a==='role')S.role=id;else if(a==='newDiscussion'){const planet=$('#tdPlanet').value,sign=$('#tdSign').value.trim(),title=$('#tdTitle').value.trim(),body=$('#tdBody').value.trim();if(!sign||!title||!body){toast('Add the placement, title and interpretation');return}S.discussions.unshift({id:Date.now(),planet,sign,title,body,author:'you',created:'Just now',comments:[]});persistGrahaFeature('graha-transit-discussions',S.discussions);toast('Discussion published')}else if(a==='replyDiscussion'){const d=S.discussions.find(x=>x.id===+id),el=$('#tdReply-'+id),body=el?.value.trim();if(!d||!body)return;d.comments.push({author:'you',body});persistGrahaFeature('graha-transit-discussions',S.discussions);toast('Reply added')}else if(a==='newPrediction'){const title=$('#prTitle').value.trim(),reason=$('#prReason').value.trim(),date=$('#prDate').value,topic=$('#prTopic').value;if(!title||!reason||!date){toast('Complete the prediction and deadline');return}S.predictions.unshift({id:Date.now(),title,reason,date,topic,status:'Open'});persistGrahaFeature('graha-prediction-tracker',S.predictions);toast('Prediction recorded')}else if(a==='resolvePrediction'){const p=S.predictions.find(x=>x.id===+id);if(!p)return;p.result=$('#prResult-'+id).value;p.note=$('#prNote-'+id).value.trim();p.status='Resolved';p.resolved=new Date().toLocaleDateString();persistGrahaFeature('graha-prediction-tracker',S.predictions);toast('Outcome recorded')}else if(a==='tab')S.tab=id;else if(a==='tag')S.tag=S.tag===id?null:id;
 else if(a==='rpm')S.menu=m===+id?null:+id;else if(a==='rp'){const n=+id;if(S.rp.has(n)){S.rp.delete(n);S.posts=S.posts.filter(x=>x.rp!==n);toast('Repost removed')}else{S.rp.add(n);S.posts.unshift({id:Date.now(),a:'you',rp:n,g:[],l:0,r:0,w:'now'});toast('Reposted')}}else if(a==='quote'){S.quote=+id;S.view='home';setTimeout(()=>{const d=$('#draft');d&&d.focus()},0)}else if(a==='unquote')S.quote=null;else if(a==='fab'){window.scrollTo({top:0,behavior:'smooth'});setTimeout(()=>{const d=$('#draft');d&&d.focus({preventScroll:true})},300)}else if(a==='pin'){S.pin=S.pin===+id?null:+id;toast(S.pin?'Pinned to your profile':'Unpinned')}else if(a==='edit')S.ed=!S.ed;else if(a==='save'){saveLinks();S.ed=false;toast('Profile saved')}else if(a==='fol')S.fol.has(id)?S.fol.delete(id):S.fol.add(id);
 else if(a==='like')S.liked.has(+id)?S.liked.delete(+id):S.liked.add(+id);
 else if(a==='post'){const t=S.draft.trim();if(!t)return;S.posts.unshift({id:Date.now(),a:'you',t,g:[S.ptag],l:0,r:0,w:'now',q:S.quote,f:S.role==='astrologer'&&S.fc});S.quote=null;S.fc=false;S.draft='';toast('Posted')}
