@@ -294,6 +294,7 @@ select option{background:var(--surface);color:var(--ink)}
 .compose-modal-head button{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:50%;width:34px;height:34px;font-size:23px;line-height:1}
 .composer-box.compose-open>div[style]{width:100%;min-width:0}
 .composer-box.compose-open textarea{width:100%;min-height:120px;max-height:32dvh;font-size:17px}
+.composer-box.compose-open textarea,.composer-box.compose-open input{scroll-margin:22px}
 .composer-box.compose-open .row{gap:8px}
 .composer-box.compose-open .media-preview{max-width:100%}
 }
@@ -431,6 +432,31 @@ function me(){
  }
  return `<div class="profile-page">${top}${S.ed&&isMine?profileEditor(u,isAstro):''}${tabbar}${S.profileTab==='posts'?'<div class="profile-feed-heading">Posts by '+esc(u.n)+'</div>':''}${content}</div>`;
 }
+function syncComposerToVisibleViewport(){
+ const modal=document.querySelector('.composer-box.compose-open');
+ if(!modal)return;
+ const vv=window.visualViewport;
+ if(!vv){modal.style.top='50%';modal.style.maxHeight='82dvh';return}
+ const available=Math.max(220,vv.height-24);
+ const center=vv.offsetTop+vv.height/2;
+ modal.style.top=Math.round(center)+'px';
+ modal.style.maxHeight=Math.round(available)+'px';
+}
+function focusComposerField(target){
+ if(!target||!target.closest('.composer-box.compose-open'))return;
+ requestAnimationFrame(()=>{
+  syncComposerToVisibleViewport();
+  const modal=document.querySelector('.composer-box.compose-open');
+  if(!modal)return;
+  const r=target.getBoundingClientRect(),m=modal.getBoundingClientRect();
+  if(r.bottom>m.bottom-18)modal.scrollTop+=r.bottom-(m.bottom-18);
+  else if(r.top<m.top+18)modal.scrollTop-=m.top+18-r.top;
+ });
+}
+window.visualViewport?.addEventListener('resize',syncComposerToVisibleViewport);
+window.visualViewport?.addEventListener('scroll',syncComposerToVisibleViewport);
+window.addEventListener('resize',syncComposerToVisibleViewport);
+document.addEventListener('focusin',e=>focusComposerField(e.target));
 function render(){const v=S.view;
 $('#nav').innerHTML=`<div class="logo">Graha<i>.</i></div>`+NAV.map(n=>`<button data-act="nav" data-id="${n[0]}" class="${v===n[0]?'on':''}"><span class="g">${n[1]}</span>${n[2]}</button>`).join('');
 $('#ttl').textContent=TT[v];$('#fab').hidden=v!=='home';document.querySelector('.app')?.classList.toggle('sky-view',v==='sky');$('#role').style.display=v==='sky'?'none':'';
@@ -438,7 +464,7 @@ $('#role').innerHTML=['seeker','astrologer'].map(r=>`<button data-act="role" dat
 $('#view').innerHTML={home,sky:liveSky,ask,pros,me}[v]()}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b){if(S.menu!=null){S.menu=null;render()}return}const a=b.dataset.act,id=b.dataset.id,m=S.menu;if(a!=='rpm')S.menu=null;
 if(a==='nav'){S.view=id;if(id==='me'){S.profileUser='you';S.profileTab='posts';S.ed=false}}else if(a==='role'){S.role=id;S.profileUser='you';S.profileTab='posts';S.ed=false}else if(a==='viewProfile'){S.profileUser=id;S.profileTab='posts';S.ed=false;S.view='me'}else if(a==='profileTab'){S.profileTab=id}else if(a==='editProfile'){S.ed=!S.ed}else if(a==='cancelProfileEdit'){S.ed=false}else if(a==='saveProfile'){if(saveProfile()){S.ed=false;toast('Profile saved')}}else if(a==='threadMode'){S.threadMode=!S.threadMode;if(S.threadMode)S.threadDrafts=[S.draft||''];else S.draft=S.threadDrafts[0]||''}else if(a==='addThreadPart'){if(S.threadDrafts.length>=25){toast('Threads can have up to 25 posts');return}S.threadDrafts.push('')}else if(a==='tab')S.tab=id;else if(a==='tag')S.tag=S.tag===id?null:id;
-else if(a==='rpm')S.menu=m===+id?null:+id;else if(a==='rp'){const n=+id;if(S.rp.has(n)){S.rp.delete(n);S.posts=S.posts.filter(x=>x.rp!==n);toast('Repost removed')}else{S.rp.add(n);S.posts.unshift({id:Date.now(),a:'you',rp:n,g:[],l:0,r:0,w:'now'});toast('Reposted')}}else if(a==='quote'){S.quote=+id;S.view='home';S.composeOpen=true;setTimeout(()=>{const d=$('#draft');d&&d.focus()},80)}else if(a==='unquote')S.quote=null;else if(a==='fab'){S.composeOpen=true;S.view='home';S.profileUser='you';setTimeout(()=>{$('#draft')?.focus({preventScroll:true})},80)}else if(a==='closeComposer'){S.composeOpen=false}else if(a==='pin'){S.pin=S.pin===+id?null:+id;toast(S.pin?'Pinned to your profile':'Unpinned')}else if(a==='edit')S.ed=!S.ed;else if(a==='save'){saveLinks();S.ed=false;toast('Profile saved')}else if(a==='fol')S.fol.has(id)?S.fol.delete(id):S.fol.add(id);
+else if(a==='rpm')S.menu=m===+id?null:+id;else if(a==='rp'){const n=+id;if(S.rp.has(n)){S.rp.delete(n);S.posts=S.posts.filter(x=>x.rp!==n);toast('Repost removed')}else{S.rp.add(n);S.posts.unshift({id:Date.now(),a:'you',rp:n,g:[],l:0,r:0,w:'now'});toast('Reposted')}}else if(a==='quote'){S.quote=+id;S.view='home';S.composeOpen=true;setTimeout(()=>{syncComposerToVisibleViewport();const d=$('#draft');d&&d.focus()},80)}else if(a==='unquote')S.quote=null;else if(a==='fab'){S.composeOpen=true;S.view='home';S.profileUser='you';setTimeout(()=>{syncComposerToVisibleViewport();$('#draft')?.focus({preventScroll:true})},80)}else if(a==='closeComposer'){S.composeOpen=false}else if(a==='pin'){S.pin=S.pin===+id?null:+id;toast(S.pin?'Pinned to your profile':'Unpinned')}else if(a==='edit')S.ed=!S.ed;else if(a==='save'){saveLinks();S.ed=false;toast('Profile saved')}else if(a==='fol')S.fol.has(id)?S.fol.delete(id):S.fol.add(id);
 else if(a==='like')S.liked.has(+id)?S.liked.delete(+id):S.liked.add(+id);
 else if(a==='chooseImages'){$('#postImages')?.click()}else if(a==='removeImage'){S.mediaDraft.splice(+id,1)}else if(a==='viewImage'){const p=S.posts.find(x=>x.id===+id),src=p?.images?.[+b.dataset.index];if(src){const modal=$('#imageViewer');modal.innerHTML='<button class="image-viewer-close" data-act="closeImage">×</button><img src="'+src+'" alt="Expanded post photo">';modal.hidden=false}}else if(a==='closeImage'){$('#imageViewer').hidden=true}else if(a==='post'){const parts=S.threadMode?S.threadDrafts.map(x=>x.trim()):[S.draft.trim()];if(!parts[0]&&!S.mediaDraft.length){toast('Write something or add a photo');return}if(parts.some(x=>x.length>280)){toast('Each thread post must be 280 characters or less');return}if(S.threadMode&&parts.some(x=>!x)){toast('Complete or remove empty thread posts');return}const threadId=parts.length>1?Date.now():null;const created=parts.map((t,i)=>({id:threadId?threadId+i:Date.now()+i,a:'you',t,g:[...S.ptags],l:0,r:0,w:'now',q:i===0?S.quote:null,f:S.role==='astrologer'&&S.fc,threadId,threadPart:threadId?i+1:null,threadTotal:threadId?parts.length:null,images:i===0?[...S.mediaDraft]:[]}));S.posts.unshift(...created);S.quote=null;S.fc=false;S.draft='';S.threadMode=false;S.threadDrafts=[''];S.mediaDraft=[];S.composeOpen=false;toast(threadId?'Thread published':'Posted')}
 else if(a==='ask'){const t=S.qd.trim();if(!t)return;S.qs.unshift({id:Date.now(),b:'you',t,g:S.qtag,a:[]});S.qd='';toast('Question posted')}
