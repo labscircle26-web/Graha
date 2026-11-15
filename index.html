@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>COSMI — Astrology community</title><link rel="icon" type="image/webp" href="/assets/graha-venus.webp">
 <meta name="theme-color" content="#120D1A" id="browserThemeColor"><script>try{document.documentElement.dataset.theme=localStorage.getItem("graha-theme")||"dark"}catch(e){document.documentElement.dataset.theme="dark"}</script>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet"></noscript>
 <style>
 :root{color-scheme:dark;--bg:#17111f;--surface:#211832;--ink:#EFE8F7;--muted:#A99BBD;--line:#35294B;--accent:#F0B13A;--accent-ink:#241A2F;--rose:#E27A9F;
 --ui:'Bricolage Grotesque',system-ui,sans-serif;--body:'Newsreader',Georgia,serif;
@@ -599,6 +599,13 @@ if(v==='sky'){
  skyCard=app?.querySelector('.sky');
  const host=$('#liveSkyHost');
  if(host&&skyCard)host.appendChild(skyCard);
+ if(!skyRefreshTimer){
+  updatePlanetPanel();
+  skyRefreshTimer=setInterval(updatePlanetPanel,30000);
+ }
+ if(!selectedCity&&!ipPresetStarted){ipPresetStarted=true;presetCityFromIP()}
+}else if(skyRefreshTimer){
+ clearInterval(skyRefreshTimer);skyRefreshTimer=null;
 }
 }
 document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b){if(S.menu!=null){S.menu=null;render()}return}const a=b.dataset.act,id=b.dataset.id,m=S.menu;if(a!=='rpm')S.menu=null;
@@ -619,6 +626,8 @@ document.addEventListener('change',e=>{if(e.target.matches('[data-post-tag]')){c
 let chartStyle='north';
 let selectedCity=null;
 let citySearchTimer=null;
+let skyRefreshTimer=null;
+let ipPresetStarted=false;
 let citySelectionVersion=0;
 const ZODIAC=['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
 const PLANET_META=[
@@ -880,9 +889,6 @@ $('#chartStyle')?.addEventListener('change',e=>{chartStyle=e.target.value;update
 function setGrahaTheme(theme){document.documentElement.dataset.theme=theme;try{localStorage.setItem('graha-theme',theme)}catch(e){}const b=$('#themeToggle');if(b){b.textContent=theme==='dark'?'☼ Light':'☾ Dark';b.setAttribute('aria-label',theme==='dark'?'Switch to light theme':'Switch to dark theme')}const m=$('#browserThemeColor');if(m)m.content=theme==='dark'?'#120D1A':'#F7F4F9'}
 $('#themeToggle')?.addEventListener('click',()=>setGrahaTheme(document.documentElement.dataset.theme==='dark'?'light':'dark'));
 setGrahaTheme(document.documentElement.dataset.theme||'dark');
-updatePlanetPanel();
-presetCityFromIP();
-setInterval(updatePlanetPanel,30000);
 render();
 
 </script>
