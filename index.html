@@ -27,6 +27,7 @@ nav button.on{color:var(--ink);background:var(--surface);box-shadow:inset 0 0 0 
 main{border-left:1px solid var(--line);border-right:1px solid var(--line);min-height:100vh}
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)}
 .top h1{margin:0;font:700 20px var(--ui)}
+.top h1.home-brand{font:700 27px var(--ui);letter-spacing:-.035em;color:var(--ink)}.top h1.home-brand .brand-dot{color:var(--accent)}
 .top-actions{display:flex;align-items:center;gap:9px;position:relative}
 .top-icon{width:38px;height:38px;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;background:var(--surface);color:var(--ink);padding:0}
 .top-icon svg{width:19px;height:19px;display:block}
@@ -487,7 +488,7 @@ const app=document.querySelector('.app'),aside=app?.querySelector(':scope > asid
 let skyCard=app?.querySelector('.sky');
 if(v!=='sky'&&aside&&skyCard&&skyCard.parentElement!==aside)aside.insertBefore(skyCard,aside.firstChild);
 $('#nav').innerHTML=`<div class="logo">Graha<i>.</i></div>`+NAV.map(n=>`<button data-act="nav" data-id="${n[0]}" class="${v===n[0]?'on':''}"><span class="g">${n[1]}</span>${n[2]}</button>`).join('');
-$('#ttl').textContent=v==='home'?'Graha.':TT[v];$('#fab').hidden=v!=='home';document.querySelector('.app')?.classList.toggle('sky-view',v==='sky');$('#role').style.display='none';
+$('#ttl').innerHTML=v==='home'?'Graha<span class="brand-dot">.</span>':TT[v];$('#ttl').classList.toggle('home-brand',v==='home');$('#fab').hidden=v!=='home';document.querySelector('.app')?.classList.toggle('sky-view',v==='sky');$('#role').style.display='none';
 $('#topPopover').hidden=!S.topPanel;if(S.topPanel){$('#topPopoverTitle').textContent=S.topPanel==='notifications'?'Notifications':'Direct messages';$('#topPopoverText').textContent=S.topPanel==='notifications'?'You’re all caught up. New activity will appear here.':'Direct messages are not available yet.'}
 $('#view').innerHTML={home,sky:liveSky,ask,pros,me}[v]();
 if(v==='sky'){
