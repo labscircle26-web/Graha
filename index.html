@@ -559,6 +559,7 @@ document.addEventListener('change',e=>{if(e.target.matches('[data-post-tag]')){c
 let chartStyle='north';
 let selectedCity=null;
 let citySearchTimer=null;
+let citySelectionVersion=0;
 const ZODIAC=['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
 const PLANET_META=[
   ['Sun','Su'],['Moon','Mo'],['Mercury','Me'],['Venus','Ve'],['Mars','Ma'],
@@ -625,7 +626,7 @@ function norm180(x){return x>180?x-360:x<-180?x+360:x}
 let currentPositions=[];
 
 const cityInput=$('#citySearch'),cityResults=$('#cityResults');
-function saveCity(city){selectedCity=city;try{localStorage.setItem('graha-city',JSON.stringify(city))}catch(e){}if(cityInput)cityInput.value=city.label; if(cityResults)cityResults.hidden=true;updatePlanetPanel()}
+function saveCity(city,source='manual'){if(source==='manual')citySelectionVersion++;selectedCity={...city,source};try{localStorage.setItem('graha-city',JSON.stringify(selectedCity))}catch(e){}if(cityInput)cityInput.value=selectedCity.label; if(cityResults)cityResults.hidden=true;updatePlanetPanel()}
 function renderCityResults(items){
   if(!cityResults)return;
   cityResults.innerHTML=items.map((c,i)=>'<button type="button" role="option" data-city-index="'+i+'">'+esc(c.name)+ '<small>'+esc([c.admin1,c.country].filter(Boolean).join(', '))+'</small></button>').join('');
@@ -648,7 +649,32 @@ cityResults?.addEventListener('click',e=>{
   const c=cityResults._items?.[Number(b.dataset.cityIndex)];if(c)saveCity(c);
 });
 document.addEventListener('click',e=>{if(!e.target.closest('.city-picker')&&cityResults)cityResults.hidden=true});
-try{const saved=JSON.parse(localStorage.getItem('graha-city')||'null');if(saved&&Number.isFinite(saved.latitude)&&Number.isFinite(saved.longitude)){selectedCity=saved;if(cityInput)cityInput.value=saved.label||saved.name}}catch(e){}
+try{
+ const saved=JSON.parse(localStorage.getItem('graha-city')||'null');
+ const valid=saved&&Number.isFinite(saved.latitude)&&Number.isFinite(saved.longitude);
+ const freshIp=saved?.source==='ip'&&Number.isFinite(saved.detectedAt)&&(Date.now()-saved.detectedAt)<6*60*60*1000;
+ if(valid&&(saved.source!=='ip'||freshIp)){selectedCity=saved;if(cityInput)cityInput.value=saved.label||saved.name}
+}catch(e){}
+async function presetCityFromIP(){
+ if(selectedCity)return;
+ const requestVersion=citySelectionVersion;
+ const cityStatus=$('#cityStatus');
+ if(cityStatus)cityStatus.textContent='Detecting approximate location to set local Lagna…';
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),5000);
+ try{
+  const response=await fetch('https://ipwho.is/',{signal:controller.signal,credentials:'omit',cache:'no-store'});
+  if(!response.ok)throw new Error('IP location lookup failed');
+  const data=await response.json();
+  const latitude=Number(data.latitude),longitude=Number(data.longitude);
+  if(!data.success||!Number.isFinite(latitude)||!Number.isFinite(longitude)||!data.city)throw new Error(data.message||'City not available from IP');
+  if(requestVersion!==citySelectionVersion||selectedCity)return;
+  const cityName=data.city,region=data.region||'',country=data.country||'';
+  const city={name:cityName,admin1:region,country,latitude,longitude,timezone:data.timezone?.id||'UTC',label:[cityName,region,country].filter(Boolean).join(', '),source:'ip',detectedAt:Date.now()};
+  saveCity(city,'ip');
+ }catch(error){
+  if(requestVersion===citySelectionVersion&&!selectedCity&&cityStatus)cityStatus.textContent='Automatic location unavailable. Search for a city to calculate its Lagna.';
+ }finally{clearTimeout(timer)}
+}
 function localAscendant(date,lat,lon){
   const jd=date.getTime()/86400000+2440587.5,T=(jd-2451545)/36525;
   let gmst=280.46061837+360.98564736629*(jd-2451545)+.000387933*T*T-T*T*T/38710000;
@@ -674,7 +700,7 @@ function updatePlanetPanel(){
   if(selectedCity){
     const asc=localAscendant(now,selectedCity.latitude,selectedCity.longitude),sign=Math.floor(asc/30),houseLabels=['1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th','11th','12th'];
     if(ascBox){ascBox.hidden=false;ascBox.innerHTML='<span>Ascendant / Lagna</span><strong>'+ZODIAC[sign]+' '+String(Math.floor(asc%30)).padStart(2,'0')+'°</strong>'}
-    if(cityStatus)cityStatus.textContent='Local chart · '+selectedCity.label+' · Whole-sign houses: '+ZODIAC[sign]+' rising';
+    if(cityStatus)cityStatus.textContent=(selectedCity.source==='ip'?'Approximate IP location · ':'Local chart · ')+selectedCity.label+' · Whole-sign houses: '+ZODIAC[sign]+' rising';
   }else{
     if(ascBox)ascBox.hidden=true;
     if(cityStatus)cityStatus.textContent='Choose a city to calculate its local Ascendant and house sequence.';
@@ -729,6 +755,7 @@ function setGrahaTheme(theme){document.documentElement.dataset.theme=theme;try{l
 $('#themeToggle')?.addEventListener('click',()=>setGrahaTheme(document.documentElement.dataset.theme==='dark'?'light':'dark'));
 setGrahaTheme(document.documentElement.dataset.theme||'dark');
 updatePlanetPanel();
+presetCityFromIP();
 setInterval(updatePlanetPanel,30000);
 render();
 
