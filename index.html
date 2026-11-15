@@ -352,7 +352,7 @@ function predictions(){
  const items=S.predictions.slice().sort((a,b)=>b.id-a.id);
  const open=items.filter(p=>p.status==='Open').length;
  return `<div class="feature-intro"><span class="hint">ACCOUNTABILITY · FOLLOW-THROUGH</span><h2>Predictor</h2><p>Publish a prediction with a defined time window. Once that period ends, add the outcome and supporting evidence.</p><div class="prediction-stats"><div><strong>${items.length}</strong><span>Total</span></div><div><strong>${open}</strong><span>Active</span></div><div><strong>${items.length-open}</strong><span>Reviewed</span></div></div></div>
- <section class="feature-form"><h3>Make a prediction</h3><div class="ed">
+ <section class="feature-form"><h3>Record prediction</h3><div class="ed">
  <label>Prediction<input id="prTitle" maxlength="140" placeholder="Make it specific and testable"></label>
  <label>Astrological reasoning<textarea id="prReason" maxlength="1000" placeholder="Transit, dasha, houses, aspects and why…"></textarea></label>
  <div class="prediction-period"><label>Expected from<input id="prStart" type="date"></label><span class="period-separator">to</span><label>Expected until<input id="prEnd" type="date"></label></div>
