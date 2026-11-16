@@ -478,6 +478,19 @@ select option{background:var(--surface);color:var(--ink)}
 .desktop-nav .logo img.vaani-full-logo{display:block;width:130px;max-width:100%;height:auto;object-fit:contain;border:0;border-radius:0;background:transparent;box-shadow:none;filter:drop-shadow(0 2px 5px rgba(0,0,0,.28))}
 .top h1.home-brand{display:flex;align-items:center;gap:0;line-height:1;font-size:0}
 .top h1.home-brand img.mobile-vaani-logo{display:block;width:112px;max-width:42vw;height:auto;object-fit:contain;border:0;border-radius:0;background:transparent;box-shadow:none;filter:drop-shadow(0 2px 5px rgba(0,0,0,.28))}
+
+.developer-bot-summary{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:-2px 0 10px;padding:10px 12px;border-radius:11px;background:color-mix(in srgb,var(--accent) 7%,var(--surface));border:1px solid var(--line)}
+.developer-bot-summary strong{color:var(--ink);font:700 13px var(--ui)}
+.developer-bot-summary span{color:var(--muted);font:11px var(--ui)}
+.developer-bot-controls{display:flex;flex-direction:column;align-items:flex-end;gap:7px;flex:none}
+.developer-bot-status{font:700 10px var(--ui)}
+.developer-bot-status.is-enabled{color:#2d9b72}.developer-bot-status.is-disabled{color:var(--muted)}
+.developer-toggle{min-width:78px;padding:7px 11px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--ink);font:700 11px var(--ui)}
+.developer-toggle.is-enabled{border-color:color-mix(in srgb,#2d9b72 45%,var(--line));color:#2d9b72;background:color-mix(in srgb,#2d9b72 8%,var(--surface))}
+.developer-toggle:disabled{opacity:.6;cursor:wait}
+.developer-system{display:inline-block;margin-top:5px;padding:2px 6px;border:1px solid var(--line);border-radius:5px;color:var(--muted);font:600 9px var(--ui)}
+.developer-loading{padding:20px 12px;color:var(--muted);font:13px var(--ui)}
+@media(max-width:700px){.developer-bot-summary{align-items:flex-start;flex-direction:column;gap:3px}.developer-bot{align-items:center}.developer-bot-controls{gap:5px}.developer-toggle{min-width:70px}}
 </style>
 </head>
 <body>
@@ -656,16 +669,39 @@ ${S.composeOpen?'<div class="compose-backdrop" data-act="closeComposer"></div>':
 <div class="row"><div class="media-tools"><button type="button" class="media-add" data-act="chooseImages">▧ Add photos</button><input id="postImages" type="file" accept="image/*" multiple hidden></div><details class="tag-picker"><summary id="tagSummary">Tags: None</summary><div class="tag-options">${TAGS.map(tag=>`<label><input type="checkbox" data-post-tag="${tag}"${S.ptags.includes(tag)?' checked':''}><span>${tag}</span></label>`).join('')}</div></details><div class="rg">${S.role==='astrologer'?`<label class="fc"><input type="checkbox" id="fcb"${S.fc?' checked':''}>Forecast</label>`:''}<button class="btn" data-act="post">Post</button></div>${hasRahuAccess()?'':'<span class="rahu-access-note">Rahu transit visuals · Astrologers or Vaani Pro</span>'}</div></div></div>
 ${L.length?L.map(post).join(''):`<div class="empty">No posts here yet. Follow astrologers or start the conversation.</div>`}`}
 
+async function loadDeveloperBots(force=false){
+ if(developerBotsLoading||(!force&&developerBots!==null))return;
+ developerBotsLoading=true;developerBotsError='';
+ try{
+  const response=await fetch('/api/developer/bots',{credentials:'include',cache:'no-store'});
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(result.error||'Could not load bot settings.');
+  developerBots=Array.isArray(result.bots)?result.bots:[];
+  if(developerBots.length!==5)developerBotsError='The server returned '+developerBots.length+' bot records; expected five.';
+ }catch(error){
+  developerBots=null;
+  developerBotsError=error.message||'Could not connect to the Vaani developer API.';
+ }finally{
+  developerBotsLoading=false;
+  if(S.view==='developer')render();
+ }
+}
 function developer(){
  const allowed=!!(cosmiAuthUser?.role==='developer'&&cosmiAuthUser?.isDeveloper===true);
  if(!allowed)return `<section class="developer-denied"><h2>Developer access required</h2><p>Sign in with an approved developer account to open this area.</p><button class="btn" data-act="auth" data-id="developer">Sign in as developer</button></section>`;
+ const botContent=developerBotsLoading?`<div class="developer-loading">Loading saved AI account settings…</div>`:developerBotsError?`<div class="developer-connection"><span class="connection-dot"></span><div><strong>Could not load bot settings</strong><p>${esc(developerBotsError)}</p><button class="btn ghost" data-act="reloadBots">Retry</button></div></div>`:((developerBots||[]).map(bot=>{
+  const visual=COSMI_AI_BOTS.find(x=>x.id===bot.id)||{c:'#80669B',s:bot.specialty||''};
+  const enabled=bot.enabled===true;
+  return `<article class="developer-bot"><div class="developer-bot-avatar" style="background:${visual.c}">${esc(bot.name.slice(0,1))}</div><div class="developer-bot-main"><div class="developer-bot-title"><strong>${esc(bot.name)}</strong><span class="ai-badge">AI</span></div><span class="developer-bot-handle">@${esc(bot.handle)}</span><p>${esc(bot.specialty||visual.s)}</p><span class="developer-system">${esc(bot.astrologySystem||'Astrology')}</span></div><div class="developer-bot-controls"><span class="developer-bot-status ${enabled?'is-enabled':'is-disabled'}">${enabled?'Enabled':'Disabled'}</span><button type="button" class="developer-toggle ${enabled?'is-enabled':''}" data-act="toggleBot" data-id="${esc(bot.id)}" data-enabled="${enabled?'false':'true'}">${enabled?'Disable':'Enable'}</button></div></article>`;
+ }).join('')||'<p class="developer-loading">No AI bot records found.</p>');
+ const enabledCount=(developerBots||[]).filter(bot=>bot.enabled).length;
  return `<section class="developer-page">
   <header class="developer-header"><span class="developer-kicker">PRIVATE WORKSPACE</span><h2>Developer console</h2><p>Manage Vaani’s disclosed AI accounts and feed integrations.</p></header>
-  <div class="developer-warning"><strong>AI identity policy</strong><p>All automated accounts must display an AI label on their profiles, posts and replies. They cannot pose as real people.</p></div>
-  <div class="developer-section-head"><div><h3>AI accounts</h3><p>Five starter profiles prepared for the feed</p></div><span class="developer-count">05</span></div>
-  <div class="developer-bot-list">${COSMI_AI_BOTS.map((bot,i)=>`<article class="developer-bot"><div class="developer-bot-avatar" style="background:${bot.c}">${bot.n[0]}</div><div class="developer-bot-main"><div class="developer-bot-title"><strong>${esc(bot.n)}</strong><span class="ai-badge">AI</span></div><span class="developer-bot-handle">@${esc(bot.h)}</span><p>${esc(bot.s)}</p></div><span class="developer-bot-status">${cosmiProvisionedBots.has(bot.id)?'Provisioned':'Not provisioned'}</span></article>`).join('')}</div>
-  <div class="developer-actions"><button class="btn" type="button" data-act="provisionBots">Provision 5 AI accounts</button><span>Requires the secure developer bot API.</span></div>
-  <div class="developer-connection"><span class="connection-dot"></span><div><strong>Backend connection pending</strong><p>Authentication, persistent bot accounts, scheduled posting and feed actions are not connected in this repository yet. No bots have been created.</p></div></div>
+  <div class="developer-warning"><strong>AI identity policy</strong><p>All automated accounts display an AI label on their profiles and posts. They do not pose as real people.</p></div>
+  <div class="developer-section-head"><div><h3>AI accounts</h3><p>Five persistent profiles · each switch is saved to the database</p></div><span class="developer-count">${String((developerBots||COSMI_AI_BOTS).length).padStart(2,'0')}</span></div>
+  <div class="developer-bot-summary"><strong>${enabledCount} of 5 enabled</strong><span>Enable or disable each account individually</span></div>
+  <div class="developer-bot-list">${botContent}</div>
+  <div class="developer-connection"><span class="connection-dot"></span><div><strong>Feed automation is separate</strong><p>Enabling an account makes it available to the app. Automated posting and replies require a separate AI generation and scheduling service.</p></div></div>
  </section>`;
 }
 function liveSky(){return '<div id="liveSkyHost"></div>'}
@@ -755,7 +791,7 @@ window.addEventListener('resize',syncComposerToVisibleViewport);
 document.addEventListener('focusin',e=>focusComposerField(e.target));
 let cosmiAuthUser=null;
 let authModalOpen=false,authMode='signin',authFeedback='',authBusy=false;
-let cosmiProvisionedBots=new Set();
+let developerBots=null,developerBotsLoading=false,developerBotsError='';
 const COSMI_AUTH_ENDPOINTS={signin:'/api/auth/sign-in',signup:'/api/auth/sign-up',developer:'/api/developer/sign-in'};
 function authOverlay(){
  const signup=authMode==='signup',developerMode=authMode==='developer';
@@ -810,6 +846,7 @@ $('#ttl').innerHTML=(v==='home'?'<img class="vaani-full-logo mobile-vaani-logo" 
 $('#topPopover').hidden=!S.topPanel;if(S.topPanel){$('#topPopoverTitle').textContent=S.topPanel==='notifications'?'Notifications':'Direct messages';$('#topPopoverText').textContent=S.topPanel==='notifications'?'You’re all caught up. New activity will appear here.':'Direct messages are not available yet.'}
 $('#view').innerHTML={home,sky:liveSky,ask,pros,me,developer}[v]();
 renderAuthOverlay();
+if(v==='developer')loadDeveloperBots();
 if(v!=='sky'&&!skyChartInitialized){
  requestAnimationFrame(()=>{
   if(!skyChartInitialized&&document.querySelector('.sky #wheel')){
@@ -841,17 +878,20 @@ document.addEventListener('click',e=>{
  if(a==='auth'){authModalOpen=true;authMode=id==='developer'?'developer':'signin';authFeedback='';authBusy=false;render();e.stopImmediatePropagation();return}
  if(a==='auth-close'){authModalOpen=false;authFeedback='';authBusy=false;render();e.stopImmediatePropagation();return}
  if(a==='auth-mode'){authMode=['signin','signup','developer'].includes(id)?id:'signin';authFeedback='';authBusy=false;render();e.stopImmediatePropagation();return}
- if(a==='provisionBots'){
+ if(a==='reloadBots'){developerBots=null;loadDeveloperBots(true);e.stopImmediatePropagation();return}
+ if(a==='toggleBot'){
   e.stopImmediatePropagation();
-  if(!(cosmiAuthUser?.role==='developer'&&cosmiAuthUser?.isDeveloper===true)){toast('Developer authorization required');return}
-  fetch('/api/developer/bots/provision',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({bots:COSMI_AI_BOTS.map(bot=>({id:bot.id,name:bot.n,handle:bot.h,system:bot.t,specialty:bot.s,bio:bot.bio,isAI:true,displayLabel:'AI'}))})})
-  .then(async response=>{const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||'Developer bot API unavailable');if(!Array.isArray(data.bots)||data.bots.length!==5)throw new Error('Server did not confirm all five AI accounts');cosmiProvisionedBots=new Set(data.bots.map(bot=>bot.id));toast('Five AI accounts provisioned');render()})
-  .catch(error=>toast(error.message.includes('Failed to fetch')||error.message.includes('unavailable')?'Developer bot API is not connected. No bots were created.':error.message));
+  const enabled=b.dataset.enabled==='true';
+  b.disabled=true;b.textContent='Saving…';
+  fetch('/api/developer/bots/'+encodeURIComponent(id),{method:'PATCH',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({enabled})})
+   .then(async response=>{const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||'Could not update this AI account.');if(!result.bot)throw new Error('Server did not confirm the updated bot state.');developerBots=(developerBots||[]).map(bot=>bot.id===result.bot.id?result.bot:bot);render()})
+   .catch(error=>{toast(error.message||'Could not update bot state.');b.disabled=false;b.textContent=enabled?'Enable':'Disable'});
+  return;
  }
 });
 
 document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b){if(S.menu!=null){S.menu=null;render()}return}const a=b.dataset.act,id=b.dataset.id,m=S.menu;if(a!=='rpm')S.menu=null;
-if(a==='auth'){authModalOpen=true;authMode=id==='developer'?'developer':'signin';authFeedback='';render();return}else if(a==='topPanel'){S.topPanel=S.topPanel===id?null:id;render();return}else if(a==='nav'){S.topPanel=null;S.view=id;if(id==='me'){S.profileUser='you';S.profileTab='posts';S.ed=false}}else if(a==='role'){S.role=id;S.profileUser='you';S.profileTab='posts';S.ed=false}else if(a==='viewProfile'){S.profileUser=id;S.profileTab='posts';S.ed=false;S.view='me'}else if(a==='profileTab'){S.profileTab=id}else if(a==='editProfile'){S.ed=!S.ed}else if(a==='cancelProfileEdit'){S.ed=false}else if(a==='saveProfile'){if(saveProfile()){S.ed=false;toast('Profile saved')}}else if(a==='threadMode'){S.threadMode=!S.threadMode;if(S.threadMode)S.threadDrafts=[S.draft||''];else S.draft=S.threadDrafts[0]||''}else if(a==='addThreadPart'){if(S.threadDrafts.length>=25){toast('Threads can have up to 25 posts');return}S.threadDrafts.push('')}else if(a==='tab')S.tab=id;else if(a==='tag')S.tag=S.tag===id?null:id;
+if(a==='auth'){authModalOpen=true;authMode=id==='developer'?'developer':'signin';authFeedback='';render();return}else if(a==='nav'&&id==='developer'&&!(cosmiAuthUser?.role==='developer'&&cosmiAuthUser?.isDeveloper===true)){authModalOpen=true;authMode='developer';authFeedback='Sign in with an approved developer account.';render();return}else if(a==='topPanel'){S.topPanel=S.topPanel===id?null:id;render();return}else if(a==='nav'){S.topPanel=null;S.view=id;if(id==='me'){S.profileUser='you';S.profileTab='posts';S.ed=false}}else if(a==='role'){S.role=id;S.profileUser='you';S.profileTab='posts';S.ed=false}else if(a==='viewProfile'){S.profileUser=id;S.profileTab='posts';S.ed=false;S.view='me'}else if(a==='profileTab'){S.profileTab=id}else if(a==='editProfile'){S.ed=!S.ed}else if(a==='cancelProfileEdit'){S.ed=false}else if(a==='saveProfile'){if(saveProfile()){S.ed=false;toast('Profile saved')}}else if(a==='threadMode'){S.threadMode=!S.threadMode;if(S.threadMode)S.threadDrafts=[S.draft||''];else S.draft=S.threadDrafts[0]||''}else if(a==='addThreadPart'){if(S.threadDrafts.length>=25){toast('Threads can have up to 25 posts');return}S.threadDrafts.push('')}else if(a==='tab')S.tab=id;else if(a==='tag')S.tag=S.tag===id?null:id;
 else if(a==='rpm')S.menu=m===+id?null:+id;else if(a==='rp'){const n=+id;if(S.rp.has(n)){S.rp.delete(n);S.posts=S.posts.filter(x=>x.rp!==n);toast('Repost removed')}else{S.rp.add(n);S.posts.unshift({id:Date.now(),a:'you',rp:n,g:[],l:0,r:0,w:'now'});toast('Reposted')}}else if(a==='quote'){S.quote=+id;S.view='home';S.composeOpen=true;setTimeout(()=>{syncComposerToVisibleViewport();const d=$('#draft');d&&d.focus()},80)}else if(a==='unquote')S.quote=null;else if(a==='fab'){S.composeOpen=true;S.view='home';S.profileUser='you';setTimeout(()=>{syncComposerToVisibleViewport();$('#draft')?.focus({preventScroll:true})},80)}else if(a==='closeComposer'){S.composeOpen=false}else if(a==='pin'){S.pin=S.pin===+id?null:+id;toast(S.pin?'Pinned to your profile':'Unpinned')}else if(a==='edit')S.ed=!S.ed;else if(a==='save'){saveLinks();S.ed=false;toast('Profile saved')}else if(a==='fol')S.fol.has(id)?S.fol.delete(id):S.fol.add(id);
 else if(a==='like')S.liked.has(+id)?S.liked.delete(+id):S.liked.add(+id);
 else if(a==='chooseImages'){$('#postImages')?.click()}else if(a==='removeImage'){S.mediaDraft.splice(+id,1)}else if(a==='viewImage'){const p=S.posts.find(x=>x.id===+id),src=p?.images?.[+b.dataset.index];if(src){const modal=$('#imageViewer');modal.innerHTML='<button class="image-viewer-close" data-act="closeImage">×</button><img src="'+src+'" alt="Expanded post photo">';modal.hidden=false}}else if(a==='closeImage'){$('#imageViewer').hidden=true}else if(a==='post'){const parts=S.threadMode?S.threadDrafts.map(x=>x.trim()):[S.draft.trim()];if(!parts[0]&&!S.mediaDraft.length){toast('Write something or add a photo');return}if(parts.some(x=>x.length>280)){toast('Each thread post must be 280 characters or less');return}if(S.threadMode&&parts.some(x=>!x)){toast('Complete or remove empty thread posts');return}const threadId=parts.length>1?Date.now():null;const created=parts.map((t,i)=>{const id=threadId?threadId+i:Date.now()+i;return {id,a:'you',t,g:[...S.ptags],l:0,r:0,w:'now',q:i===0?S.quote:null,f:S.role==='astrologer'&&S.fc,threadId,threadPart:threadId?i+1:null,threadTotal:threadId?parts.length:null,images:i===0?[...S.mediaDraft]:[],rahu:i===0?createRahuReply(parts.join(' '),'you',id):null}});S.posts.unshift(...created);S.quote=null;S.fc=false;S.draft='';S.threadMode=false;S.threadDrafts=[''];S.mediaDraft=[];S.composeOpen=false;toast(threadId?'Thread published':'Posted')}
