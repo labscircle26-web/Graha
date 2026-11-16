@@ -670,7 +670,7 @@ ${S.composeOpen?'<div class="compose-backdrop" data-act="closeComposer"></div>':
 ${L.length?L.map(post).join(''):`<div class="empty">No posts here yet. Follow astrologers or start the conversation.</div>`}`}
 
 async function loadDeveloperBots(force=false){
- if(developerBotsLoading||(!force&&developerBots!==null))return;
+ if(developerBotsLoading||(!force&&(developerBots!==null||developerBotsError)))return;
  developerBotsLoading=true;developerBotsError='';
  try{
   const response=await fetch('/api/developer/bots',{credentials:'include',cache:'no-store'});
