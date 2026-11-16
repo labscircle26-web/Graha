@@ -239,10 +239,17 @@ async function requireDeveloper(request, sql) {
 }
 
 async function handleApi(request, env) {
-  if (!env.DATABASE_URL) return json({ error: 'DATABASE_URL secret is not configured on this Worker.' }, 503);
-  const sql = neon(env.DATABASE_URL);
   const url = new URL(request.url);
   const path = url.pathname;
+
+  // Static website requests must keep working even before the database secret is configured.
+  if (!path.startsWith('/api/')) {
+    if (env.ASSETS) return env.ASSETS.fetch(request);
+    return json({ error: 'Static asset binding ASSETS is not configured.' }, 500);
+  }
+
+  if (!env.DATABASE_URL) return json({ error: 'DATABASE_URL secret is not configured on this Worker.' }, 503);
+  const sql = neon(env.DATABASE_URL);
 
   if (request.method === 'GET' && path === '/api/health') {
     const rows = await query(sql, ['SELECT now() AS database_time']);
@@ -302,9 +309,7 @@ async function handleApi(request, env) {
     return json({ bot: publicBot(rows[0]) });
   }
 
-  if (path.startsWith('/api/')) return json({ error: 'API route not found.' }, 404);
-  if (env.ASSETS) return env.ASSETS.fetch(request);
-  return json({ error: 'Static asset binding ASSETS is not configured.' }, 500);
+  return json({ error: 'API route not found.' }, 404);
 }
 
 export default {
