@@ -19,9 +19,12 @@ function json(data, status = 200, headers = {}) {
 }
 
 function query(sql, parts, ...values) {
-  const strings = [...parts];
-  strings.raw = [...parts];
-  return sql(strings, ...values);
+  let statement = String(parts[0] || '');
+  const placeholder = String.fromCharCode(36);
+  for (let index = 1; index < parts.length; index++) {
+    statement += placeholder + index + String(parts[index] || '');
+  }
+  return sql.query(statement, values);
 }
 
 function base64url(bytes) {
