@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>COSMI — Astrology community</title><link rel="icon" type="image/webp" href="/assets/graha-venus.webp">
+<title>Vaani — Astrology community</title><link rel="icon" type="image/webp" href="/assets/graha-venus.webp">
 <meta name="theme-color" content="#120D1A" id="browserThemeColor"><script>try{document.documentElement.dataset.theme=localStorage.getItem("graha-theme")||"dark"}catch(e){document.documentElement.dataset.theme="dark"}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet"></noscript>
 <style>
@@ -405,23 +405,23 @@ select option{background:var(--surface);color:var(--ink)}
 .aspect-pair{color:var(--ink)}.aspect-name,.aspect-orb{color:var(--muted);white-space:nowrap}
 .western-aspects-empty{margin:4px 0 0;color:var(--muted);font:12px var(--ui)}
 
-/* COSMI wordmark: the existing planetary logo forms the O */
-.cosmi-wordmark{display:inline-flex!important;align-items:center;gap:0;white-space:nowrap;letter-spacing:-.045em}
-.cosmi-o{display:inline-block;width:1.02em;height:1.02em;object-fit:contain;vertical-align:middle;flex:none;margin:0 -.015em;filter:drop-shadow(0 1px 3px rgba(0,0,0,.45)) drop-shadow(0 0 4px rgba(233,182,74,.22))}
-.logo .cosmi-wordmark{font:700 26px var(--ui);color:var(--ink);letter-spacing:-.045em}
-.logo .cosmi-o{width:1.02em;height:1.02em;border-radius:0;background:transparent;box-shadow:none}
-.top h1.home-brand .cosmi-wordmark{font:700 28px var(--ui);letter-spacing:-.045em;color:var(--ink)}
-@media(max-width:700px){.top h1.home-brand .cosmi-o{width:.94em;height:.94em}}
+/* Vaani wordmark: the planetary emblem sits beside the new name */
+.vaani-wordmark{display:inline-flex!important;align-items:center;gap:0;white-space:nowrap;letter-spacing:-.045em}
+.vaani-mark{display:inline-block;width:1.02em;height:1.02em;object-fit:contain;vertical-align:middle;flex:none;margin:0 -.015em;filter:drop-shadow(0 1px 3px rgba(0,0,0,.45)) drop-shadow(0 0 4px rgba(233,182,74,.22))}
+.logo .vaani-wordmark{font:700 26px var(--ui);color:var(--ink);letter-spacing:-.045em}
+.logo .vaani-mark{width:1.02em;height:1.02em;border-radius:0;background:transparent;box-shadow:none}
+.top h1.home-brand .vaani-wordmark{font:700 28px var(--ui);letter-spacing:-.045em;color:var(--ink)}
+@media(max-width:700px){.top h1.home-brand .vaani-mark{width:.94em;height:.94em}}
 
 /* Make the planet occupy the O's actual character slot instead of touching adjacent letters */
-.cosmi-wordmark{display:inline-flex!important;align-items:baseline;gap:0;line-height:1;white-space:nowrap;letter-spacing:-.02em}
-.cosmi-wordmark .cosmi-o{display:inline-block;flex:0 0 .78em;width:.78em;height:.78em;max-width:.78em;object-fit:contain;vertical-align:baseline;margin:0 .045em;transform:translateY(.09em);border:0;border-radius:0;background:transparent;box-shadow:none}
-.logo .cosmi-wordmark{font:700 26px/1 var(--ui);letter-spacing:-.02em}
-.logo .cosmi-wordmark .cosmi-o{flex-basis:.78em;width:.78em;height:.78em}
-.top h1.home-brand .cosmi-wordmark{font:700 28px/1 var(--ui);letter-spacing:-.02em}
-.top h1.home-brand .cosmi-wordmark .cosmi-o{flex-basis:.78em;width:.78em;height:.78em}
+.vaani-wordmark{display:inline-flex!important;align-items:baseline;gap:0;line-height:1;white-space:nowrap;letter-spacing:-.02em}
+.vaani-wordmark .vaani-mark{display:inline-block;flex:0 0 1.02em;width:1.02em;height:1.02em;max-width:1.02em;object-fit:contain;vertical-align:middle;margin:0 .24em 0 0;transform:translateY(.06em);border:0;border-radius:0;background:transparent;box-shadow:none}
+.logo .vaani-wordmark{font:700 26px/1 var(--ui);letter-spacing:-.02em}
+.logo .vaani-wordmark .vaani-mark{flex-basis:1.02em;width:1.02em;height:1.02em}
+.top h1.home-brand .vaani-wordmark{font:700 28px/1 var(--ui);letter-spacing:-.02em}
+.top h1.home-brand .vaani-wordmark .vaani-mark{flex-basis:.78em;width:.78em;height:.78em}
 @media(max-width:700px){
- .top h1.home-brand .cosmi-wordmark .cosmi-o{flex-basis:.78em;width:.78em;height:.78em;max-width:.78em}
+ .top h1.home-brand .vaani-wordmark .vaani-mark{flex-basis:1.02em;width:1.02em;height:1.02em;max-width:1.02em}
 }
 
 /* Rahu transit chart replies */
@@ -605,7 +605,7 @@ function post(p){if(p.rp){const o=S.posts.find(x=>x.id===p.rp);return o?`<div cl
 function home(){let L=S.posts.filter(p=>(S.tab==='explore'||S.fol.has(p.a)||p.a==='you')&&(!S.tag||p.g.includes(S.tag)));
 return `<div class="tabs"><button data-act="tab" data-id="explore" class="${S.tab==='explore'?'on':''}">Explore</button><button data-act="tab" data-id="following" class="${S.tab==='following'?'on':''}">Following</button></div>
 ${S.composeOpen?'<div class="compose-backdrop" data-act="closeComposer"></div>':''}<div class="box composer-box ${S.composeOpen?'compose-open':''}">${S.composeOpen?'<div class="compose-modal-head"><strong>Create a post</strong><button type="button" data-act="closeComposer" aria-label="Close post editor">×</button></div>':''}<div style="flex:1;min-width:0"><textarea id="draft" maxlength="280" placeholder="Share thoughts…" aria-label="Share thoughts">${esc(S.threadMode?S.threadDrafts[0]||'':S.draft)}</textarea><div class="composer-tools"><span id="charCount" class="char-count">${(S.threadMode?S.threadDrafts[0]||'':S.draft).length}/280</span><button type="button" class="thread-toggle ${S.threadMode?'on':''}" data-act="threadMode">${S.threadMode?'Thread mode on':'Write a thread'}</button></div><div class="media-preview">${S.mediaDraft.map((src,i)=>`<div class="media-preview-item"><img src="${src}" alt="Selected photo ${i+1}"><button type="button" data-act="removeImage" data-id="${i}">×</button></div>`).join('')}</div>${S.threadMode?S.threadDrafts.slice(1).map((part,i)=>`<div class="thread-part"><span class="thread-part-label">Thread post ${i+2}</span><textarea maxlength="280" data-thread-index="${i+1}" placeholder="Continue your thread…">${esc(part)}</textarea><span class="char-count">${part.length}/280</span></div>`).join('')+`<button type="button" class="thread-add" data-act="addThreadPart">+ Add another post</button>`:''}${S.quote?qt(S.quote,1):''}
-<div class="row"><div class="media-tools"><button type="button" class="media-add" data-act="chooseImages">▧ Add photos</button><input id="postImages" type="file" accept="image/*" multiple hidden></div><details class="tag-picker"><summary id="tagSummary">Tags: None</summary><div class="tag-options">${TAGS.map(tag=>`<label><input type="checkbox" data-post-tag="${tag}"${S.ptags.includes(tag)?' checked':''}><span>${tag}</span></label>`).join('')}</div></details><div class="rg">${S.role==='astrologer'?`<label class="fc"><input type="checkbox" id="fcb"${S.fc?' checked':''}>Forecast</label>`:''}<button class="btn" data-act="post">Post</button></div>${hasRahuAccess()?'':'<span class="rahu-access-note">Rahu transit visuals · Astrologers or COSMI Pro</span>'}</div></div></div>
+<div class="row"><div class="media-tools"><button type="button" class="media-add" data-act="chooseImages">▧ Add photos</button><input id="postImages" type="file" accept="image/*" multiple hidden></div><details class="tag-picker"><summary id="tagSummary">Tags: None</summary><div class="tag-options">${TAGS.map(tag=>`<label><input type="checkbox" data-post-tag="${tag}"${S.ptags.includes(tag)?' checked':''}><span>${tag}</span></label>`).join('')}</div></details><div class="rg">${S.role==='astrologer'?`<label class="fc"><input type="checkbox" id="fcb"${S.fc?' checked':''}>Forecast</label>`:''}<button class="btn" data-act="post">Post</button></div>${hasRahuAccess()?'':'<span class="rahu-access-note">Rahu transit visuals · Astrologers or Vaani Pro</span>'}</div></div></div>
 ${L.length?L.map(post).join(''):`<div class="empty">No posts here yet. Follow astrologers or start the conversation.</div>`}`}
 
 function liveSky(){return '<div id="liveSkyHost"></div>'}
@@ -651,7 +651,7 @@ function me(){
  const following=isMine?S.fol.size:0,followers=0,postCount=mine.length,verified=!!u.v,title=isAstro?'Astrologer':'Seeker';
  const badges=`<div class="profile-badges"><span class="profile-pill">${title}</span>${isAstro&&verified?'<span class="profile-pill gold">✦ Verified profile</span>':''}${isAstro&&!verified?'<span class="profile-pill">Verification not reviewed</span>':''}${isAstro&&u.t?'<span class="profile-pill gold">'+esc(u.t)+'</span>':''}</div>`;
  const roleControl=isMine?`<div class="profile-role-control"><span>Account type</span><div class="seg">${['seeker','astrologer'].map(r=>`<button data-act="role" data-id="${r}" class="${S.role===r?'on':''}">${r[0].toUpperCase()+r.slice(1)}</button>`).join('')}</div></div>`:'';
- const top=`<section class="profile-cover"><span class="profile-cover-mark">GRAHA · YOUR COSMOS</span></section><div class="profile-main"><div class="profile-identity"><div class="profile-avatar-wrap">${av(uid)}</div><div class="profile-actions">${isMine?`<button class="btn ghost" data-act="editProfile">${S.ed?'Close editor':'Edit profile'}</button>`:`<button class="btn ${S.fol.has(uid)?'on':'ghost'}" data-act="fol" data-id="${uid}">${S.fol.has(uid)?'Following':'Follow'}</button>`}</div></div>
+ const top=`<section class="profile-cover"><span class="profile-cover-mark">VAANI · YOUR COSMOS</span></section><div class="profile-main"><div class="profile-identity"><div class="profile-avatar-wrap">${av(uid)}</div><div class="profile-actions">${isMine?`<button class="btn ghost" data-act="editProfile">${S.ed?'Close editor':'Edit profile'}</button>`:`<button class="btn ${S.fol.has(uid)?'on':'ghost'}" data-act="fol" data-id="${uid}">${S.fol.has(uid)?'Following':'Follow'}</button>`}</div></div>
  <h2 class="profile-title">${esc(u.n)}${isAstro&&verified?ICON:''}</h2><div class="profile-handle">@${esc(u.h||'username')}</div>${badges}
  ${u.bio?'<p class="profile-bio">'+esc(u.bio)+'</p>':'<p class="profile-bio hint">'+(isMine?'Add a bio to introduce yourself to the Graha community.':'No bio added yet.')+'</p>'}
  <div class="profile-meta">${u.location?'<span>⌖ '+esc(u.location)+'</span>':''}${isAstro&&u.s?'<span>✧ '+esc(u.s)+'</span>':''}${isAstro&&u.experience?'<span>◷ '+esc(u.experience)+' years experience</span>':''}${isAstro?stT(u):''}</div>
@@ -711,13 +711,13 @@ let skyCard=app?.querySelector('.sky');
 if(v!=='sky'&&aside&&skyCard&&skyCard.parentElement!==aside)aside.insertBefore(skyCard,aside.firstChild);
 const signedIn=cosmiSignedIn(),authEntry=['auth','↪','Sign in/up'];
 const desktopItems=signedIn?NAV.filter(n=>n[0]!=='sky'):NAV.filter(n=>n[0]!=='sky'&&n[0]!=='me').concat([authEntry]);
-$('#desktopNav').innerHTML=`<div class="logo"><span class="cosmi-wordmark">C<img class="cosmi-o" src="/assets/graha-venus.webp" alt="O">SMI</span></div>`+desktopItems.map(n=>`<button data-act="${n[0]==='auth'?'auth':'nav'}" data-id="${n[0]}" class="${v===n[0]?'on':''}"><span class="g">${n[1]}</span>${n[2]}</button>`).join('')+`
+$('#desktopNav').innerHTML=`<div class="logo"><span class="vaani-wordmark"><img class="vaani-mark" src="/assets/graha-venus.webp" alt="">VAANI</span></div>`+desktopItems.map(n=>`<button data-act="${n[0]==='auth'?'auth':'nav'}" data-id="${n[0]}" class="${v===n[0]?'on':''}"><span class="g">${n[1]}</span>${n[2]}</button>`).join('')+`
 <button class="nav-utility-button ${S.topPanel==='notifications'?'on':''}" data-act="topPanel" data-id="notifications"><span class="g"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></span>Notifications</button>
 <button class="nav-utility-button ${S.topPanel==='messages'?'on':''}" data-act="topPanel" data-id="messages"><span class="g"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/></svg></span>Messages</button>
 <div id="desktopNavPanel" class="desktop-nav-panel" ${S.topPanel?'':'hidden'}><strong>${S.topPanel==='notifications'?'Notifications':'Direct messages'}</strong><p>${S.topPanel==='notifications'?'You’re all caught up. New activity will appear here.':'Direct messages are not available yet.'}</p></div>`;
 const mobileItems=signedIn?NAV:NAV.filter(n=>n[0]!=='me').concat([authEntry]);
 $('#mobileNav').innerHTML=mobileItems.map(n=>`<button data-act="${n[0]==='auth'?'auth':'nav'}" data-id="${n[0]}" class="${v===n[0]?'on':''}"><span class="g">${n[1]}</span>${n[2]}</button>`).join('');
-$('#ttl').innerHTML=(v==='home'?'<span class="brand-word cosmi-wordmark">C<img class="cosmi-o" src="/assets/graha-venus.webp" alt="O">SMI</span>':'<img class="top-brand-icon" src="/assets/graha-venus.webp" alt="">'+TT[v]);$('#ttl').classList.toggle('home-brand',v==='home');$('#fab').hidden=v!=='home';document.querySelector('.app')?.classList.toggle('sky-view',v==='sky');$('#role').style.display='none';
+$('#ttl').innerHTML=(v==='home'?'<span class="brand-word vaani-wordmark"><img class="vaani-mark" src="/assets/graha-venus.webp" alt="">VAANI</span>':'<img class="top-brand-icon" src="/assets/graha-venus.webp" alt="">'+TT[v]);$('#ttl').classList.toggle('home-brand',v==='home');$('#fab').hidden=v!=='home';document.querySelector('.app')?.classList.toggle('sky-view',v==='sky');$('#role').style.display='none';
 $('#topPopover').hidden=!S.topPanel;if(S.topPanel){$('#topPopoverTitle').textContent=S.topPanel==='notifications'?'Notifications':'Direct messages';$('#topPopoverText').textContent=S.topPanel==='notifications'?'You’re all caught up. New activity will appear here.':'Direct messages are not available yet.'}
 $('#view').innerHTML={home,sky:liveSky,ask,pros,me}[v]();
 if(v!=='sky'&&!skyChartInitialized){
