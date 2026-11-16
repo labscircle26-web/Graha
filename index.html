@@ -850,6 +850,38 @@ else if(a==='chooseImages'){$('#postImages')?.click()}else if(a==='removeImage')
 else if(a==='ask'){const t=S.qd.trim();if(!t)return;S.qs.unshift({id:Date.now(),b:'you',t,g:S.qtag,a:[]});S.qd='';toast('Question posted')}
 else if(a==='ans'){const t=(S.ad[id]||'').trim();if(!t)return;S.qs.find(q=>q.id==id).a.push({b:'you',t});S.ad[id]='';toast('Answer posted')}
 render()});
+
+document.addEventListener('submit',async e=>{
+ const form=e.target.closest('#authForm');if(!form)return;
+ e.preventDefault();if(authBusy)return;
+ const data=new FormData(form),mode=form.dataset.mode;
+ const payload={email:String(data.get('email')||'').trim(),password:String(data.get('password')||'')};
+ if(mode==='signup'){payload.name=String(data.get('name')||'').trim();payload.accountType=String(data.get('accountType')||'seeker')}
+ if(!payload.email||!payload.password){const status=$('#authFeedback');if(status)status.textContent='Enter your email and password.';return}
+ authBusy=true;
+ const button=form.querySelector('.auth-submit');if(button){button.disabled=true;button.textContent='Please wait…'}
+ const status=$('#authFeedback');if(status)status.textContent='';
+ try{
+  const endpoint=(window.COSMI_AUTH_ENDPOINTS||COSMI_AUTH_ENDPOINTS)[mode];
+  const response=await fetch(endpoint,{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok){
+   if(response.status===404)throw new Error('The secure authentication Worker is not connected yet. No account was created.');
+   throw new Error(result.error||'Sign-in failed. Check your details and try again.');
+  }
+  const user=result.user||null;
+  if(!user||!user.id)throw new Error('The server did not return a valid account session.');
+  if(mode==='developer'&&!(user.role==='developer'&&user.isDeveloper===true))throw new Error('This account does not have developer access.');
+  if(mode!=='developer'&&user.role==='developer')throw new Error('Use the Developer tab for developer accounts.');
+  authBusy=false;authModalOpen=false;authFeedback='';
+  window.cosmiSetAuthUser(user);
+ }catch(error){
+  authBusy=false;
+  const statusNode=$('#authFeedback');if(statusNode)statusNode.textContent=error.message||'Could not connect to the authentication service.';
+  const submit=form.querySelector('.auth-submit');if(submit){submit.disabled=false;submit.textContent=mode==='developer'?'Sign in as developer':mode==='signup'?'Create account':'Sign in'}
+ }
+});
+
 document.addEventListener('change',e=>{if(e.target.id==='postImages'){const files=[...e.target.files||[]],room=5-S.mediaDraft.length;if(files.length>room)toast('You can add up to 5 photos');files.slice(0,Math.max(0,room)).forEach(file=>{if(!file.type.startsWith('image/'))return;const reader=new FileReader();reader.onload=()=>{S.mediaDraft.push(String(reader.result));const y=window.scrollY;render();window.scrollTo(0,y)};reader.readAsDataURL(file)});e.target.value=''}});
 document.addEventListener('scroll',e=>{const track=e.target.closest?.('.gallery-track');if(!track)return;const gallery=track.closest('.post-gallery'),n=track.querySelectorAll('.gallery-image').length;if(!n)return;const count=gallery.querySelector('.gallery-count');if(count)count.textContent=(Math.round(track.scrollLeft/Math.max(1,track.clientWidth+8))+1)+'/'+n},{capture:true,passive:true});
 document.addEventListener('input',e=>{const t=e.target;if(t.id==='draft'){S.draft=t.value;if(S.threadMode)S.threadDrafts[0]=t.value;const c=$('#charCount');if(c)c.textContent=t.value.length+'/280'}else if(t.dataset.threadIndex!==undefined){S.threadDrafts[+t.dataset.threadIndex]=t.value;const c=t.parentElement.querySelector('.char-count');if(c)c.textContent=t.value.length+'/280'}else if(t.id==='qd')S.qd=t.value;else if(t.dataset.q)S.ad[t.dataset.q]=t.value});
@@ -1124,6 +1156,8 @@ $('#chartStyle')?.addEventListener('change',e=>{chartStyle=e.target.value;update
 function setGrahaTheme(theme){document.documentElement.dataset.theme=theme;try{localStorage.setItem('graha-theme',theme)}catch(e){}const b=$('#themeToggle');if(b){b.textContent=theme==='dark'?'☼ Light':'☾ Dark';b.setAttribute('aria-label',theme==='dark'?'Switch to light theme':'Switch to dark theme')}const m=$('#browserThemeColor');if(m)m.content=theme==='dark'?'#120D1A':'#F7F4F9'}
 $('#themeToggle')?.addEventListener('click',()=>setGrahaTheme(document.documentElement.dataset.theme==='dark'?'light':'dark'));
 setGrahaTheme(document.documentElement.dataset.theme||'dark');
+async function restoreVaaniSession(){try{const response=await fetch('/api/auth/session',{credentials:'include',cache:'no-store'});if(!response.ok)return;const result=await response.json();if(result.user?.id)window.cosmiSetAuthUser(result.user)}catch(e){}}
+restoreVaaniSession();
 render();
 
 </script>
