@@ -1,0 +1,13 @@
+# Keep only the public SPA and its static assets in the Workers Assets upload.
+.git
+.github
+node_modules
+src
+package.json
+package-lock.json
+wrangler.toml
+.assetsignore
+.gitignore
+README.md
+.dev.vars*
+.env*
