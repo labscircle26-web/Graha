@@ -824,6 +824,24 @@ if(v==='sky'){
  clearInterval(skyRefreshTimer);skyRefreshTimer=null;
 }
 }
+
+document.addEventListener('click',e=>{
+ const b=e.target.closest('[data-act]');
+ if(e.target.id==='authBackdrop'){authModalOpen=false;authFeedback='';authBusy=false;render();e.stopImmediatePropagation();return}
+ if(!b)return;
+ const a=b.dataset.act,id=b.dataset.id;
+ if(a==='auth'){authModalOpen=true;authMode=id==='developer'?'developer':'signin';authFeedback='';authBusy=false;render();e.stopImmediatePropagation();return}
+ if(a==='auth-close'){authModalOpen=false;authFeedback='';authBusy=false;render();e.stopImmediatePropagation();return}
+ if(a==='auth-mode'){authMode=['signin','signup','developer'].includes(id)?id:'signin';authFeedback='';authBusy=false;render();e.stopImmediatePropagation();return}
+ if(a==='provisionBots'){
+  e.stopImmediatePropagation();
+  if(!(cosmiAuthUser?.role==='developer'&&cosmiAuthUser?.isDeveloper===true)){toast('Developer authorization required');return}
+  fetch('/api/developer/bots/provision',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({bots:COSMI_AI_BOTS.map(bot=>({id:bot.id,name:bot.n,handle:bot.h,system:bot.t,specialty:bot.s,bio:bot.bio,isAI:true,displayLabel:'AI'}))})})
+  .then(async response=>{const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||'Developer bot API unavailable');if(!Array.isArray(data.bots)||data.bots.length!==5)throw new Error('Server did not confirm all five AI accounts');cosmiProvisionedBots=new Set(data.bots.map(bot=>bot.id));toast('Five AI accounts provisioned');render()})
+  .catch(error=>toast(error.message.includes('Failed to fetch')||error.message.includes('unavailable')?'Developer bot API is not connected. No bots were created.':error.message));
+ }
+});
+
 document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b){if(S.menu!=null){S.menu=null;render()}return}const a=b.dataset.act,id=b.dataset.id,m=S.menu;if(a!=='rpm')S.menu=null;
 if(a==='auth'){toast('Sign-in and account creation are not connected yet.');return}else if(a==='topPanel'){S.topPanel=S.topPanel===id?null:id;render();return}else if(a==='nav'){S.topPanel=null;S.view=id;if(id==='me'){S.profileUser='you';S.profileTab='posts';S.ed=false}}else if(a==='role'){S.role=id;S.profileUser='you';S.profileTab='posts';S.ed=false}else if(a==='viewProfile'){S.profileUser=id;S.profileTab='posts';S.ed=false;S.view='me'}else if(a==='profileTab'){S.profileTab=id}else if(a==='editProfile'){S.ed=!S.ed}else if(a==='cancelProfileEdit'){S.ed=false}else if(a==='saveProfile'){if(saveProfile()){S.ed=false;toast('Profile saved')}}else if(a==='threadMode'){S.threadMode=!S.threadMode;if(S.threadMode)S.threadDrafts=[S.draft||''];else S.draft=S.threadDrafts[0]||''}else if(a==='addThreadPart'){if(S.threadDrafts.length>=25){toast('Threads can have up to 25 posts');return}S.threadDrafts.push('')}else if(a==='tab')S.tab=id;else if(a==='tag')S.tag=S.tag===id?null:id;
 else if(a==='rpm')S.menu=m===+id?null:+id;else if(a==='rp'){const n=+id;if(S.rp.has(n)){S.rp.delete(n);S.posts=S.posts.filter(x=>x.rp!==n);toast('Repost removed')}else{S.rp.add(n);S.posts.unshift({id:Date.now(),a:'you',rp:n,g:[],l:0,r:0,w:'now'});toast('Reposted')}}else if(a==='quote'){S.quote=+id;S.view='home';S.composeOpen=true;setTimeout(()=>{syncComposerToVisibleViewport();const d=$('#draft');d&&d.focus()},80)}else if(a==='unquote')S.quote=null;else if(a==='fab'){S.composeOpen=true;S.view='home';S.profileUser='you';setTimeout(()=>{syncComposerToVisibleViewport();$('#draft')?.focus({preventScroll:true})},80)}else if(a==='closeComposer'){S.composeOpen=false}else if(a==='pin'){S.pin=S.pin===+id?null:+id;toast(S.pin?'Pinned to your profile':'Unpinned')}else if(a==='edit')S.ed=!S.ed;else if(a==='save'){saveLinks();S.ed=false;toast('Profile saved')}else if(a==='fol')S.fol.has(id)?S.fol.delete(id):S.fol.add(id);
