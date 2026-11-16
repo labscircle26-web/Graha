@@ -423,6 +423,22 @@ select option{background:var(--surface);color:var(--ink)}
 @media(max-width:700px){
  .top h1.home-brand .cosmi-wordmark .cosmi-o{flex-basis:.78em;width:.78em;height:.78em;max-width:.78em}
 }
+
+/* Rahu transit chart replies */
+.rahu-access-note{font:500 11px var(--ui);color:var(--muted);white-space:nowrap}
+.rahu-reply{margin:16px 0 2px;padding:14px;border:1px solid color-mix(in srgb,var(--accent) 32%,var(--line));border-radius:16px;background:linear-gradient(145deg,color-mix(in srgb,var(--surface) 92%,#3A2455),color-mix(in srgb,var(--bg) 88%,#302044));}
+.rahu-head{display:flex;align-items:center;gap:9px}.rahu-avatar{width:32px;height:32px;display:grid;place-items:center;border-radius:50%;border:1px solid color-mix(in srgb,var(--accent) 60%,var(--line));background:color-mix(in srgb,var(--accent) 14%,var(--surface));color:var(--accent);font:700 19px var(--ui)}
+.rahu-byline{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font:500 13px var(--ui)}.rahu-byline strong{font-size:14px;color:var(--ink)}.rahu-bot-tag{padding:2px 8px;border-radius:999px;background:color-mix(in srgb,#9462D6 28%,var(--surface));color:#D7B8FF;font-weight:600}.rahu-time{color:var(--muted)}
+.rahu-intro{margin:8px 0 12px;color:var(--muted);font:400 14px/1.45 var(--ui)}
+.rahu-chart-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}.rahu-chart-head strong{font:600 14px var(--ui)}.rahu-chart-head select{min-height:32px;padding:5px 32px 5px 11px;font-size:12px;max-width:160px}
+.rahu-chart-wrap{width:min(100%,330px);margin:0 auto;padding:8px;border:1px solid var(--line);border-radius:12px;background:color-mix(in srgb,var(--bg) 68%,transparent)}
+.rahu-chart-svg{display:block;width:100%;height:auto;overflow:visible}
+.rahu-details{display:grid;grid-template-columns:1fr 1.15fr;gap:12px;margin-top:12px}.rahu-section-label{display:block;margin-bottom:6px;color:var(--muted);font:600 10px var(--ui);letter-spacing:.07em;text-transform:uppercase}
+.rahu-facts,.rahu-edge-list{display:flex;flex-direction:column;gap:5px}.rahu-fact{display:flex;justify-content:space-between;gap:8px;font:500 12px var(--ui)}.rahu-fact b{font-weight:700;color:var(--ink)}.rahu-fact span{color:var(--muted);white-space:nowrap}
+.rahu-edge-key{display:flex;align-items:center;gap:6px;font:500 11px var(--ui);color:var(--ink)}.rahu-edge-key i{width:8px;height:8px;border-radius:50%;background:var(--edge-color);flex:none}
+.rahu-disclaimer{margin:10px 0 0;color:var(--muted);font:400 11px/1.4 var(--ui)}
+@media(max-width:700px){.rahu-reply{padding:12px;margin-top:14px}.rahu-details{grid-template-columns:1fr}.rahu-chart-wrap{width:min(100%,290px)}.rahu-access-note{white-space:normal;max-width:130px}}
+
 </style>
 </head>
 <body>
@@ -449,8 +465,9 @@ lena:{n:'Lena Voss',h:'lenavoss',t:'Western',s:'Natal charts (verification pendi
 riya:{n:'Riya K.',h:'riya_k',t:'Seeker',s:'',v:0,c:'#8A6A2F'},
 you:{n:'You',h:'you',t:'',s:'',v:0,c:'#2A1B3D',st:'open',bio:'',location:'',experience:'',interests:'',lk:{}}};
 try{const savedProfile=JSON.parse(localStorage.getItem('graha-profile')||'null');if(savedProfile&&typeof savedProfile==='object')Object.assign(U.you,savedProfile)}catch(e){}
+Object.values(U).forEach(u=>{if(!['north','south','western'].includes(u.chartPreference))u.chartPreference=u.t==='Western'?'western':'north'});
 const TAGS=['General Astrology','Vedic','Western','KP Astrology','Transits','Chart Analysis','Dasha','Muhurta','Synastry','Career & Finance','Relationships','Learning'];
-const S={view:'home',tab:'explore',role:'seeker',profileUser:'you',profileTab:'posts',topPanel:null,composeOpen:false,tag:null,fol:new Set(['meera']),liked:new Set(),rp:new Set(),menu:null,quote:null,fc:false,pin:null,ed:false,draft:'',threadMode:false,threadDrafts:[''],ptags:[],mediaDraft:[],qd:'',qtag:'Career',ad:{},
+const S={view:'home',tab:'explore',role:'seeker',pro:false,profileUser:'you',profileTab:'posts',topPanel:null,composeOpen:false,tag:null,fol:new Set(['meera']),liked:new Set(),rp:new Set(),menu:null,quote:null,fc:false,pin:null,ed:false,draft:'',threadMode:false,threadDrafts:[''],ptags:[],mediaDraft:[],qd:'',qtag:'Career',ad:{},
 posts:[{id:1,a:'meera',t:`Saturn’s long stay in Pisces keeps testing how we build things. In Vedic terms, watch your 10th house and your Saturn dasha before you change jobs.`,g:['Saturn','Career','Vedic'],f:1,l:41,r:6,w:'2h'},
 {id:2,a:'daniel',t:`Synastry tip: don’t stop at Sun signs. Compare Moon to Moon and Venus to Mars first. That’s where day-to-day chemistry shows up.`,g:['Synastry','Moon','Western'],l:67,r:12,w:'5h'},
 {id:3,a:'arjun',t:`Looking for a good window to sign something important this week? Check the Moon’s nakshatra and avoid the hours of Rahu Kalam.`,g:['Muhurta','Moon','Vedic'],f:1,l:23,r:4,w:'9h'},
@@ -483,12 +500,112 @@ const nm=(id,e)=>{const u=U[id],v=u.v||(id==='you'&&S.role==='astrologer');retur
 const opts=(l,c)=>l.map(x=>`<option${x===c?' selected':''}>${x}</option>`).join('');
 const NAV=[['home','☉','Home'],['sky','☾','Live sky'],['ask','?','Ask'],['pros','✦','Astrologers'],['me','♄','Profile']];
 const TT={home:'Home',sky:'Live sky',ask:'Ask an astrologer',pros:'Astrologers',me:'Profile'};
+
+function hasRahuAccess(){return S.role==='astrologer'||S.pro===true}
+function profileChartStyle(uid){
+ const u=U[uid]||U.you;
+ return ['north','south','western'].includes(u.chartPreference)?u.chartPreference:(u.t==='Western'?'western':'north');
+}
+function ordinalHouse(n){return n+({1:'st',2:'nd',3:'rd'}[n]||'th')}
+function parseRahuTransit(text,style){
+ const names=['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto','Rahu','Ketu'];
+ const found=[];
+ for(const name of names){
+  const re=new RegExp('\\b'+name+'\\b','i'),m=re.exec(text);
+  if(!m)continue;
+  const start=m.index+m[0].length;
+  const later=names.map(n=>{const x=new RegExp('\\b'+n+'\\b','ig');x.lastIndex=start;const y=x.exec(text);return y?y.index:Infinity}).filter(Number.isFinite);
+  const end=later.length?Math.min(...later):Math.min(text.length,start+130);
+  const segment=text.slice(start,end);
+  const hm=segment.match(/\b(?:in|from|at|occupying|placed\s+in|positioned\s+in|transiting\s+(?:in|through))\s+(?:the\s+)?(1[0-2]|[1-9])(?:st|nd|rd|th)?(?:\s+house)?\b/i)
+    ||segment.match(/\bhouse\s*(1[0-2]|[1-9])\b/i);
+  if(!hm)continue;
+  const house=Number(hm[1]);
+  const am=segment.match(/\b(?:aspecting|aspects?|looking\s+at|looks?\s+at|drishti(?:\s+on)?)\s+(?:the\s+)?(1[0-2]|[1-9])(?:st|nd|rd|th)?(?:\s+house)?\b/i);
+  found.push({name,house,explicitTarget:am?Number(am[1]):null});
+ }
+ if(!found.length)return null;
+ const edges=[];
+ found.forEach(p=>{if(p.explicitTarget)edges.push({planet:p.name,from:p.house,to:p.explicitTarget,kind:'explicit'})});
+ if(style!=='western'){
+  const offsets={Mars:[3,6,7],Saturn:[2,6,9],Jupiter:[4,6,8]};
+  found.forEach(source=>{
+   const steps=offsets[source.name]||[6];
+   found.forEach(target=>{
+    if(source===target)return;
+    const reaches=steps.some(step=>((source.house-1+step)%12)+1===target.house);
+    if(reaches&&!edges.some(e=>e.planet===source.name&&e.from===source.house&&e.to===target.house))
+      edges.push({planet:source.name,from:source.house,to:target.house,kind:'graha-drishti',targetPlanet:target.name});
+   });
+  });
+ }
+ return {placements:found.map(({name,house})=>({name,house})),edges,system:style==='western'?'Western house layout':'Vedic house layout'};
+}
+function rahuPoint(style,house){
+ if(style==='north'){
+  const map={1:[120,64],2:[65,31],3:[31,65],4:[64,120],5:[31,175],6:[65,209],7:[120,176],8:[175,209],9:[209,175],10:[176,120],11:[209,65],12:[175,31]};
+  return {x:map[house][0],y:map[house][1],lx:map[house][0],ly:map[house][1]-10};
+ }
+ if(style==='south'){
+  const map={1:[37,37],2:[92,37],3:[148,37],4:[203,37],5:[203,92],6:[203,148],7:[203,203],8:[148,203],9:[92,203],10:[37,203],11:[37,148],12:[37,92]};
+  return {x:map[house][0],y:map[house][1],lx:map[house][0],ly:map[house][1]-10};
+ }
+ const a=Math.PI+(house-1)*Math.PI/6;
+ return {x:120+74*Math.cos(a),y:120+74*Math.sin(a),lx:120+90*Math.cos(a),ly:120+90*Math.sin(a)};
+}
+function rahuChartSvg(postId,analysis,style){
+ const id='rahu-arrow-'+String(postId).replace(/[^\w-]/g,'');
+ const houseNames=analysis.placements.reduce((a,p)=>{(a[p.house]||(a[p.house]=[])).push(p.name);return a},{});
+ const colors={Mars:'#F17D72',Saturn:'#A88BFF',Jupiter:'#E9B64A'};
+ let frame='';
+ if(style==='north'){
+  frame='<rect x="10" y="10" width="220" height="220" rx="2" fill="none" stroke="var(--accent)" stroke-width="1.2"/><path d="M10 10L230 230 M230 10L10 230 M120 10L230 120L120 230L10 120Z" fill="none" stroke="var(--line)" stroke-width="1.2"/>';
+ }else if(style==='south'){
+  frame='<rect x="10" y="10" width="220" height="220" fill="none" stroke="var(--accent)" stroke-width="1.2"/><path d="M65 10V230 M120 10V65 M120 175V230 M175 10V230 M10 65H230 M10 120H65 M175 120H230 M10 175H230" fill="none" stroke="var(--line)" stroke-width="1.2"/>';
+ }else{
+  frame='<circle cx="120" cy="120" r="105" fill="none" stroke="var(--accent)" stroke-width="1.2"/><circle cx="120" cy="120" r="72" fill="none" stroke="var(--line)" stroke-width="1.2"/>';
+  for(let h=1;h<=12;h++){const p=rahuPoint(style,h),a=Math.atan2(p.y-120,p.x-120);const x1=120+72*Math.cos(a),y1=120+72*Math.sin(a),x2=120+105*Math.cos(a),y2=120+105*Math.sin(a);frame+='<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="var(--line)" stroke-width="1"/>'}
+ }
+ let edges='';
+ analysis.edges.forEach((edge,i)=>{
+  const a=rahuPoint(style,edge.from),b=rahuPoint(style,edge.to),color=colors[edge.planet]||'#69A8FF';
+  edges+='<line x1="'+a.x+'" y1="'+a.y+'" x2="'+b.x+'" y2="'+b.y+'" stroke="'+color+'" stroke-width="2.2" stroke-dasharray="5 4" opacity=".95" marker-end="url(#'+id+')"/>';
+ });
+ let labels='';
+ for(let h=1;h<=12;h++){
+  const p=rahuPoint(style,h),namesHere=houseNames[h]||[];
+  if(style==='western'){
+   const labelX=p.lx,labelY=p.ly;
+   labels+='<text x="'+labelX+'" y="'+labelY+'" text-anchor="middle" font-size="8" fill="var(--accent)" font-weight="700">'+h+'</text>';
+   if(namesHere.length)labels+='<text x="'+p.x+'" y="'+(p.y+3)+'" text-anchor="middle" font-size="8" fill="var(--ink)" font-weight="700">'+namesHere.join(' · ')+'</text>';
+  }else{
+   labels+='<text x="'+p.lx+'" y="'+p.ly+'" text-anchor="middle" font-size="9" fill="var(--accent)" font-weight="700">'+h+'</text>';
+   if(namesHere.length)labels+='<text x="'+p.x+'" y="'+(p.y+8)+'" text-anchor="middle" font-size="8" fill="var(--ink)" font-weight="700">'+namesHere.join(' · ')+'</text>';
+  }
+ }
+ const title=style==='north'?'NORTH INDIAN':style==='south'?'SOUTH INDIAN':'WESTERN';
+ const center=style==='western'?'<text x="120" y="116" text-anchor="middle" font-size="9" fill="var(--muted)" font-family="sans-serif">TRANSIT</text><text x="120" y="130" text-anchor="middle" font-size="8" fill="var(--muted)" font-family="sans-serif">HOUSES</text>':'';
+ return '<svg class="rahu-chart-svg" viewBox="0 0 240 240" role="img" aria-label="'+title+' transit house chart"><defs><marker id="'+id+'" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#E9B64A"/></marker></defs>'+frame+edges+labels+center+'</svg>';
+}
+function rahuReply(p){
+ if(!p.rahu)return '';
+ const r=p.rahu,a=r.analysis,style=r.style||'north';
+ const placements=a.placements.map(x=>'<span class="rahu-fact"><b>'+esc(x.name)+'</b><span>'+ordinalHouse(x.house)+' house</span></span>').join('');
+ const aspects=a.edges.map(x=>'<span class="rahu-edge-key"><i style="--edge-color:'+(x.planet==='Mars'?'#F17D72':x.planet==='Saturn'?'#A88BFF':'#E9B64A')+'"></i>'+esc(x.planet)+' · '+ordinalHouse(x.from)+' → '+ordinalHouse(x.to)+(x.targetPlanet?' ('+esc(x.targetPlanet)+')':'')+'</span>').join('');
+ return '<section class="rahu-reply" aria-label="Rahu astrology chart reply"><div class="rahu-head"><span class="rahu-avatar">☊</span><div class="rahu-byline"><strong>Rahu</strong><span class="rahu-bot-tag">✦ Astro Bot</span><span class="rahu-time">· just now</span></div></div><p class="rahu-intro">I mapped the planetary placements and aspects described in this post.</p><div class="rahu-chart-head"><strong>Transit chart</strong><select aria-label="Convert chart format" data-rahu-style data-post-id="'+p.id+'"><option value="north"'+(style==='north'?' selected':'')+'>North Indian</option><option value="south"'+(style==='south'?' selected':'')+'>South Indian</option><option value="western"'+(style==='western'?' selected':'')+'>Western</option></select></div><div class="rahu-chart-wrap">'+rahuChartSvg(p.id,a,style)+'</div><div class="rahu-details"><div><span class="rahu-section-label">Detected placements</span><div class="rahu-facts">'+placements+'</div></div><div><span class="rahu-section-label">Aspect lines</span><div class="rahu-edge-list">'+(aspects||'<span class="hint">No aspect was stated or could be inferred confidently.</span>')+'</div></div></div><p class="rahu-disclaimer">House placements are extracted from the author’s text. '+(style==='western'?'No Vedic graha-drishti rules are applied.':'Vedic graha-drishti is used only to connect planets explicitly placed in the described houses.')+'</p></section>';
+}
+function createRahuReply(text,authorId,postId){
+ if(!hasRahuAccess())return null;
+ const style=profileChartStyle(authorId),analysis=parseRahuTransit(text,style);
+ return analysis?{analysis,style,generatedAt:Date.now(),postId}:null;
+}
+
 function post(p){if(p.rp){const o=S.posts.find(x=>x.id===p.rp);return o?`<div class="rpl">${IRP}You reposted</div>`+post(o):''}return `<article class="post${p.f?' fcp':''}">${av(p.a)}<div class="bd">${S.pin===p.id&&p.a==='you'?`<div class="fl">${IPIN}Pinned</div>`:''}${p.f?`<div class="fl">${ISTAR}Forecast</div>`:''}${nm(p.a,' · '+p.w)}${p.threadId?`<div class="thread-indicator">Thread · ${p.threadPart} of ${p.threadTotal}</div>`:''}<div class="txt">${esc(p.t)}</div>${qt(p.q)}${p.images?.length?`<div class="post-gallery"><div class="gallery-track">${p.images.map((src,i)=>`<button class="gallery-image" type="button" data-act="viewImage" data-id="${p.id}" data-index="${i}"><img src="${src}" alt="Post image ${i+1}"></button>`).join('')}</div><div class="gallery-meta"><span>Photos</span><span class="gallery-count">1/${p.images.length}</span></div></div>`:''}<div class="tg">${p.g.map(g=>`<b>${g}</b>`).join('')}</div>
-<div class="acts"><span>${p.r} replies</span><span class="rpw"><button data-act="rpm" data-id="${p.id}" class="${S.rp.has(p.id)?'on2':''}" aria-haspopup="menu" aria-expanded="${S.menu===p.id}" aria-label="Repost or quote">${IRP}<span>${((p.s||0)+(S.rp.has(p.id)?1:0))||''}</span></button>${S.menu===p.id?`<div class="menu" role="menu"><button role="menuitem" data-act="rp" data-id="${p.id}">${IRP}${S.rp.has(p.id)?'Undo repost':'Repost'}</button><button role="menuitem" data-act="quote" data-id="${p.id}">${IQ}Quote</button></div>`:''}</span><button data-act="like" data-id="${p.id}" class="${S.liked.has(p.id)?'on':''}" aria-pressed="${S.liked.has(p.id)}">${IH}<span>${p.l+(S.liked.has(p.id)?1:0)}</span></button>${p.a==='you'&&S.role==='astrologer'&&!p.rp?`<button data-act="pin" data-id="${p.id}" class="${S.pin===p.id?'on2':''}" aria-pressed="${S.pin===p.id}" aria-label="Pin to profile">${IPIN}</button>`:''}</div></div></article>`}
+<div class="acts"><span>${p.r} replies</span><span class="rpw"><button data-act="rpm" data-id="${p.id}" class="${S.rp.has(p.id)?'on2':''}" aria-haspopup="menu" aria-expanded="${S.menu===p.id}" aria-label="Repost or quote">${IRP}<span>${((p.s||0)+(S.rp.has(p.id)?1:0))||''}</span></button>${S.menu===p.id?`<div class="menu" role="menu"><button role="menuitem" data-act="rp" data-id="${p.id}">${IRP}${S.rp.has(p.id)?'Undo repost':'Repost'}</button><button role="menuitem" data-act="quote" data-id="${p.id}">${IQ}Quote</button></div>`:''}</span><button data-act="like" data-id="${p.id}" class="${S.liked.has(p.id)?'on':''}" aria-pressed="${S.liked.has(p.id)}">${IH}<span>${p.l+(S.liked.has(p.id)?1:0)}</span></button>${p.a==='you'&&S.role==='astrologer'&&!p.rp?`<button data-act="pin" data-id="${p.id}" class="${S.pin===p.id?'on2':''}" aria-pressed="${S.pin===p.id}" aria-label="Pin to profile">${IPIN}</button>`:''}</div>${rahuReply(p)}</div></article>`}
 function home(){let L=S.posts.filter(p=>(S.tab==='explore'||S.fol.has(p.a)||p.a==='you')&&(!S.tag||p.g.includes(S.tag)));
 return `<div class="tabs"><button data-act="tab" data-id="explore" class="${S.tab==='explore'?'on':''}">Explore</button><button data-act="tab" data-id="following" class="${S.tab==='following'?'on':''}">Following</button></div>
 ${S.composeOpen?'<div class="compose-backdrop" data-act="closeComposer"></div>':''}<div class="box composer-box ${S.composeOpen?'compose-open':''}">${S.composeOpen?'<div class="compose-modal-head"><strong>Create a post</strong><button type="button" data-act="closeComposer" aria-label="Close post editor">×</button></div>':''}<div style="flex:1;min-width:0"><textarea id="draft" maxlength="280" placeholder="Share thoughts…" aria-label="Share thoughts">${esc(S.threadMode?S.threadDrafts[0]||'':S.draft)}</textarea><div class="composer-tools"><span id="charCount" class="char-count">${(S.threadMode?S.threadDrafts[0]||'':S.draft).length}/280</span><button type="button" class="thread-toggle ${S.threadMode?'on':''}" data-act="threadMode">${S.threadMode?'Thread mode on':'Write a thread'}</button></div><div class="media-preview">${S.mediaDraft.map((src,i)=>`<div class="media-preview-item"><img src="${src}" alt="Selected photo ${i+1}"><button type="button" data-act="removeImage" data-id="${i}">×</button></div>`).join('')}</div>${S.threadMode?S.threadDrafts.slice(1).map((part,i)=>`<div class="thread-part"><span class="thread-part-label">Thread post ${i+2}</span><textarea maxlength="280" data-thread-index="${i+1}" placeholder="Continue your thread…">${esc(part)}</textarea><span class="char-count">${part.length}/280</span></div>`).join('')+`<button type="button" class="thread-add" data-act="addThreadPart">+ Add another post</button>`:''}${S.quote?qt(S.quote,1):''}
-<div class="row"><div class="media-tools"><button type="button" class="media-add" data-act="chooseImages">▧ Add photos</button><input id="postImages" type="file" accept="image/*" multiple hidden></div><details class="tag-picker"><summary id="tagSummary">Tags: None</summary><div class="tag-options">${TAGS.map(tag=>`<label><input type="checkbox" data-post-tag="${tag}"${S.ptags.includes(tag)?' checked':''}><span>${tag}</span></label>`).join('')}</div></details><div class="rg">${S.role==='astrologer'?`<label class="fc"><input type="checkbox" id="fcb"${S.fc?' checked':''}>Forecast</label>`:''}<button class="btn" data-act="post">Post</button></div></div></div></div>
+<div class="row"><div class="media-tools"><button type="button" class="media-add" data-act="chooseImages">▧ Add photos</button><input id="postImages" type="file" accept="image/*" multiple hidden></div><details class="tag-picker"><summary id="tagSummary">Tags: None</summary><div class="tag-options">${TAGS.map(tag=>`<label><input type="checkbox" data-post-tag="${tag}"${S.ptags.includes(tag)?' checked':''}><span>${tag}</span></label>`).join('')}</div></details><div class="rg">${S.role==='astrologer'?`<label class="fc"><input type="checkbox" id="fcb"${S.fc?' checked':''}>Forecast</label>`:''}<button class="btn" data-act="post">Post</button></div>${(S.role==='astrologer'||S.pro)?'':'<span class="rahu-access-note">Rahu transit visuals · Astrologers or COSMI Pro</span>'}</div></div></div>
 ${L.length?L.map(post).join(''):`<div class="empty">No posts here yet. Follow astrologers or start the conversation.</div>`}`}
 
 function liveSky(){return '<div id="liveSkyHost"></div>'}
@@ -507,6 +624,7 @@ function profileEditor(u,isAstro){
  ${field('name','Display name',u.n,'Your name')}${field('handle','Username',u.h,'your_handle')}
  ${field('location','Location',u.location,'City, country')}
  <label style="grid-column:1/-1">Bio<textarea id="pf-bio" maxlength="240" placeholder="A little about you...">${esc(u.bio||'')}</textarea></label>
+ <label>Preferred chart format<select id="pf-chartPreference"><option value="north"${(u.chartPreference||'north')==='north'?' selected':''}>Vedic · North Indian</option><option value="south"${u.chartPreference==='south'?' selected':''}>Vedic · South Indian</option><option value="western"${u.chartPreference==='western'?' selected':''}>Western</option></select></label>
  ${isAstro?`<div class="editor-section">Professional details</div>${field('system','Astrology system',u.t,'Vedic, Western, KP...')}${field('specialties','Specialisations',u.s,'Career, relationships, transits')}${field('experience','Years of experience',u.experience,'e.g. 8','number')}`:`${field('interests','Astrology interests',u.interests,'Vedic, transits, learning')}`}
  <div class="editor-section">Links</div>
  ${field('web','Website',lk.web,'https://')}${field('ig','Instagram username',lk.ig,'username')}${field('x','X username',lk.x,'username')}${field('yt','YouTube handle',lk.yt,'channel handle')}
@@ -519,6 +637,7 @@ function saveProfile(){
  if(!name){toast('Add your display name');return false}
  if(!/^[a-zA-Z0-9._]{3,30}$/.test(handle)){toast('Username must be 3–30 letters, numbers, dots or underscores');return false}
  const u=U.you,isAstro=S.role==='astrologer';
+ u.chartPreference=['north','south','western'].includes($('#pf-chartPreference')?.value)?$('#pf-chartPreference').value:'north';
  u.n=name;u.h=handle;u.location=get('location');u.bio=get('bio');
  u.lk={...(u.lk||{}),web:get('web'),ig:get('ig').replace(/^@/,''),x:get('x').replace(/^@/,''),yt:get('yt').replace(/^@/,'')};
  if(isAstro){u.t=get('system');u.s=get('specialties');u.experience=get('experience');u.st=$('#pf-status')?.value||'open'}
@@ -576,6 +695,11 @@ document.addEventListener('focusin',e=>focusComposerField(e.target));
 let cosmiAuthUser=null;
 window.cosmiSetAuthUser=function(user){
  cosmiAuthUser=user||null;
+ if(user){
+  if(user.role==='astrologer'||user.accountType==='astrologer')S.role='astrologer';
+  else if(user.role==='seeker'||user.accountType==='seeker')S.role='seeker';
+  S.pro=!!(user.isPro===true||user.pro===true||String(user.plan||'').toLowerCase()==='pro'||String(user.subscription?.tier||'').toLowerCase()==='pro'||user.entitlements?.includes?.('cosmi-pro'));
+ }else{S.pro=false;S.role='seeker'}
  if(!cosmiAuthUser&&S.view==='me'&&S.profileUser==='you'){S.view='home';S.profileUser='you';S.ed=false}
  render();
 };
@@ -612,14 +736,14 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(
 if(a==='auth'){toast('Sign-in and account creation are not connected yet.');return}else if(a==='topPanel'){S.topPanel=S.topPanel===id?null:id;render();return}else if(a==='nav'){S.topPanel=null;S.view=id;if(id==='me'){S.profileUser='you';S.profileTab='posts';S.ed=false}}else if(a==='role'){S.role=id;S.profileUser='you';S.profileTab='posts';S.ed=false}else if(a==='viewProfile'){S.profileUser=id;S.profileTab='posts';S.ed=false;S.view='me'}else if(a==='profileTab'){S.profileTab=id}else if(a==='editProfile'){S.ed=!S.ed}else if(a==='cancelProfileEdit'){S.ed=false}else if(a==='saveProfile'){if(saveProfile()){S.ed=false;toast('Profile saved')}}else if(a==='threadMode'){S.threadMode=!S.threadMode;if(S.threadMode)S.threadDrafts=[S.draft||''];else S.draft=S.threadDrafts[0]||''}else if(a==='addThreadPart'){if(S.threadDrafts.length>=25){toast('Threads can have up to 25 posts');return}S.threadDrafts.push('')}else if(a==='tab')S.tab=id;else if(a==='tag')S.tag=S.tag===id?null:id;
 else if(a==='rpm')S.menu=m===+id?null:+id;else if(a==='rp'){const n=+id;if(S.rp.has(n)){S.rp.delete(n);S.posts=S.posts.filter(x=>x.rp!==n);toast('Repost removed')}else{S.rp.add(n);S.posts.unshift({id:Date.now(),a:'you',rp:n,g:[],l:0,r:0,w:'now'});toast('Reposted')}}else if(a==='quote'){S.quote=+id;S.view='home';S.composeOpen=true;setTimeout(()=>{syncComposerToVisibleViewport();const d=$('#draft');d&&d.focus()},80)}else if(a==='unquote')S.quote=null;else if(a==='fab'){S.composeOpen=true;S.view='home';S.profileUser='you';setTimeout(()=>{syncComposerToVisibleViewport();$('#draft')?.focus({preventScroll:true})},80)}else if(a==='closeComposer'){S.composeOpen=false}else if(a==='pin'){S.pin=S.pin===+id?null:+id;toast(S.pin?'Pinned to your profile':'Unpinned')}else if(a==='edit')S.ed=!S.ed;else if(a==='save'){saveLinks();S.ed=false;toast('Profile saved')}else if(a==='fol')S.fol.has(id)?S.fol.delete(id):S.fol.add(id);
 else if(a==='like')S.liked.has(+id)?S.liked.delete(+id):S.liked.add(+id);
-else if(a==='chooseImages'){$('#postImages')?.click()}else if(a==='removeImage'){S.mediaDraft.splice(+id,1)}else if(a==='viewImage'){const p=S.posts.find(x=>x.id===+id),src=p?.images?.[+b.dataset.index];if(src){const modal=$('#imageViewer');modal.innerHTML='<button class="image-viewer-close" data-act="closeImage">×</button><img src="'+src+'" alt="Expanded post photo">';modal.hidden=false}}else if(a==='closeImage'){$('#imageViewer').hidden=true}else if(a==='post'){const parts=S.threadMode?S.threadDrafts.map(x=>x.trim()):[S.draft.trim()];if(!parts[0]&&!S.mediaDraft.length){toast('Write something or add a photo');return}if(parts.some(x=>x.length>280)){toast('Each thread post must be 280 characters or less');return}if(S.threadMode&&parts.some(x=>!x)){toast('Complete or remove empty thread posts');return}const threadId=parts.length>1?Date.now():null;const created=parts.map((t,i)=>({id:threadId?threadId+i:Date.now()+i,a:'you',t,g:[...S.ptags],l:0,r:0,w:'now',q:i===0?S.quote:null,f:S.role==='astrologer'&&S.fc,threadId,threadPart:threadId?i+1:null,threadTotal:threadId?parts.length:null,images:i===0?[...S.mediaDraft]:[]}));S.posts.unshift(...created);S.quote=null;S.fc=false;S.draft='';S.threadMode=false;S.threadDrafts=[''];S.mediaDraft=[];S.composeOpen=false;toast(threadId?'Thread published':'Posted')}
+else if(a==='chooseImages'){$('#postImages')?.click()}else if(a==='removeImage'){S.mediaDraft.splice(+id,1)}else if(a==='viewImage'){const p=S.posts.find(x=>x.id===+id),src=p?.images?.[+b.dataset.index];if(src){const modal=$('#imageViewer');modal.innerHTML='<button class="image-viewer-close" data-act="closeImage">×</button><img src="'+src+'" alt="Expanded post photo">';modal.hidden=false}}else if(a==='closeImage'){$('#imageViewer').hidden=true}else if(a==='post'){const parts=S.threadMode?S.threadDrafts.map(x=>x.trim()):[S.draft.trim()];if(!parts[0]&&!S.mediaDraft.length){toast('Write something or add a photo');return}if(parts.some(x=>x.length>280)){toast('Each thread post must be 280 characters or less');return}if(S.threadMode&&parts.some(x=>!x)){toast('Complete or remove empty thread posts');return}const threadId=parts.length>1?Date.now():null;const created=parts.map((t,i)=>{const id=threadId?threadId+i:Date.now()+i;return {id,a:'you',t,g:[...S.ptags],l:0,r:0,w:'now',q:i===0?S.quote:null,f:S.role==='astrologer'&&S.fc,threadId,threadPart:threadId?i+1:null,threadTotal:threadId?parts.length:null,images:i===0?[...S.mediaDraft]:[],rahu:i===0?createRahuReply(parts.join(' '),'you',id):null}});S.posts.unshift(...created);S.quote=null;S.fc=false;S.draft='';S.threadMode=false;S.threadDrafts=[''];S.mediaDraft=[];S.composeOpen=false;toast(threadId?'Thread published':'Posted')}
 else if(a==='ask'){const t=S.qd.trim();if(!t)return;S.qs.unshift({id:Date.now(),b:'you',t,g:S.qtag,a:[]});S.qd='';toast('Question posted')}
 else if(a==='ans'){const t=(S.ad[id]||'').trim();if(!t)return;S.qs.find(q=>q.id==id).a.push({b:'you',t});S.ad[id]='';toast('Answer posted')}
 render()});
 document.addEventListener('change',e=>{if(e.target.id==='postImages'){const files=[...e.target.files||[]],room=5-S.mediaDraft.length;if(files.length>room)toast('You can add up to 5 photos');files.slice(0,Math.max(0,room)).forEach(file=>{if(!file.type.startsWith('image/'))return;const reader=new FileReader();reader.onload=()=>{S.mediaDraft.push(String(reader.result));const y=window.scrollY;render();window.scrollTo(0,y)};reader.readAsDataURL(file)});e.target.value=''}});
 document.addEventListener('scroll',e=>{const track=e.target.closest?.('.gallery-track');if(!track)return;const gallery=track.closest('.post-gallery'),n=track.querySelectorAll('.gallery-image').length;if(!n)return;const count=gallery.querySelector('.gallery-count');if(count)count.textContent=(Math.round(track.scrollLeft/Math.max(1,track.clientWidth+8))+1)+'/'+n},{capture:true,passive:true});
 document.addEventListener('input',e=>{const t=e.target;if(t.id==='draft'){S.draft=t.value;if(S.threadMode)S.threadDrafts[0]=t.value;const c=$('#charCount');if(c)c.textContent=t.value.length+'/280'}else if(t.dataset.threadIndex!==undefined){S.threadDrafts[+t.dataset.threadIndex]=t.value;const c=t.parentElement.querySelector('.char-count');if(c)c.textContent=t.value.length+'/280'}else if(t.id==='qd')S.qd=t.value;else if(t.dataset.q)S.ad[t.dataset.q]=t.value});
-document.addEventListener('change',e=>{if(e.target.matches('[data-post-tag]')){const tag=e.target.dataset.postTag;if(e.target.checked){if(!S.ptags.includes(tag))S.ptags.push(tag)}else S.ptags=S.ptags.filter(x=>x!==tag);const summary=$('#tagSummary');if(summary)summary.textContent=S.ptags.length?'Tags: '+S.ptags.join(', '):'Tags: None'}if(e.target.id==='fcb')S.fc=e.target.checked;if(e.target.id==='qtag')S.qtag=e.target.value;if(e.target.id==='chartStyle'){chartStyle=e.target.value;drawChart(chartStyle)}});
+document.addEventListener('change',e=>{if(e.target.matches('[data-post-tag]')){const tag=e.target.dataset.postTag;if(e.target.checked){if(!S.ptags.includes(tag))S.ptags.push(tag)}else S.ptags=S.ptags.filter(x=>x!==tag);const summary=$('#tagSummary');if(summary)summary.textContent=S.ptags.length?'Tags: '+S.ptags.join(', '):'Tags: None'}if(e.target.id==='fcb')S.fc=e.target.checked;if(e.target.id==='qtag')S.qtag=e.target.value;if(e.target.id==='chartStyle'){chartStyle=e.target.value;drawChart(chartStyle)}if(e.target.matches('[data-rahu-style]')){const p=S.posts.find(x=>x.id===Number(e.target.dataset.postId));if(p?.rahu){p.rahu.style=['north','south','western'].includes(e.target.value)?e.target.value:'north';render()}}});
 
 
 // LIVE_SIDEREAL_ENGINE_V1
