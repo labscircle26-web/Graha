@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Vaani — Astrology community</title><link rel="icon" type="image/webp" href="/assets/graha-venus.webp">
+<title>Vaani — Astrology community</title><link rel="icon" type="image/webp" href="/assets/vaani-logo.webp">
 <meta name="theme-color" content="#120D1A" id="browserThemeColor"><script>try{document.documentElement.dataset.theme=localStorage.getItem("graha-theme")||"dark"}catch(e){document.documentElement.dataset.theme="dark"}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet"></noscript>
 <style>
@@ -472,6 +472,12 @@ select option{background:var(--surface);color:var(--ink)}
 .developer-shortcut{margin:10px 0}
 @media(max-width:700px){.auth-dialog{padding:19px;border-radius:19px}.developer-page{padding:16px 12px 28px}.developer-bot{gap:9px;padding:10px}.developer-bot-status{font-size:9px}.developer-bot-main p{font-size:11px}}
 #authRoot:empty{display:none}#authRoot:not(:empty){position:fixed;inset:0;z-index:100;pointer-events:none}#authRoot .auth-backdrop{pointer-events:auto}
+
+/* Use the uploaded full Vaani speech-planet emblem as the single brand mark */
+.desktop-nav .logo{display:flex;align-items:center;justify-content:flex-start;width:100%;margin:0 0 18px 0;padding:0 2px;min-height:0}
+.desktop-nav .logo img.vaani-full-logo{display:block;width:130px;max-width:100%;height:auto;object-fit:contain;border:0;border-radius:0;background:transparent;box-shadow:none;filter:drop-shadow(0 2px 5px rgba(0,0,0,.28))}
+.top h1.home-brand{display:flex;align-items:center;gap:0;line-height:1;font-size:0}
+.top h1.home-brand img.mobile-vaani-logo{display:block;width:112px;max-width:42vw;height:auto;object-fit:contain;border:0;border-radius:0;background:transparent;box-shadow:none;filter:drop-shadow(0 2px 5px rgba(0,0,0,.28))}
 </style>
 </head>
 <body>
@@ -708,7 +714,7 @@ function me(){
  const roleControl=isMine?`<div class="profile-role-control"><span>Account type</span><div class="seg">${['seeker','astrologer'].map(r=>`<button data-act="role" data-id="${r}" class="${S.role===r?'on':''}">${r[0].toUpperCase()+r.slice(1)}</button>`).join('')}</div></div>`:'';
  const top=`<section class="profile-cover"><span class="profile-cover-mark">VAANI · YOUR COSMOS</span></section><div class="profile-main"><div class="profile-identity"><div class="profile-avatar-wrap">${av(uid)}</div><div class="profile-actions">${isMine?`<button class="btn ghost" data-act="editProfile">${S.ed?'Close editor':'Edit profile'}</button>`:`<button class="btn ${S.fol.has(uid)?'on':'ghost'}" data-act="fol" data-id="${uid}">${S.fol.has(uid)?'Following':'Follow'}</button>`}</div></div>
  <h2 class="profile-title">${esc(u.n)}${isAstro&&verified?ICON:''}</h2><div class="profile-handle">@${esc(u.h||'username')}</div>${badges}
- ${u.bio?'<p class="profile-bio">'+esc(u.bio)+'</p>':'<p class="profile-bio hint">'+(isMine?'Add a bio to introduce yourself to the Graha community.':'No bio added yet.')+'</p>'}
+ ${u.bio?'<p class="profile-bio">'+esc(u.bio)+'</p>':'<p class="profile-bio hint">'+(isMine?'Add a bio to introduce yourself to the Vaani community.':'No bio added yet.')+'</p>'}
  <div class="profile-meta">${u.location?'<span>⌖ '+esc(u.location)+'</span>':''}${isAstro&&u.s?'<span>✧ '+esc(u.s)+'</span>':''}${isAstro&&u.experience?'<span>◷ '+esc(u.experience)+' years experience</span>':''}${isAstro?stT(u):''}</div>
  ${roleControl}${developerShortcut}<div class="profile-stats"><span class="profile-stat"><strong>${postCount}</strong> Posts</span><span class="profile-stat"><strong>${followers}</strong> Followers</span><span class="profile-stat"><strong>${following}</strong> Following</span></div></div>`;
  const tabs=isAstro?['posts','forecasts','about']:['posts','about'];
@@ -794,13 +800,13 @@ let skyCard=app?.querySelector('.sky');
 if(v!=='sky'&&aside&&skyCard&&skyCard.parentElement!==aside)aside.insertBefore(skyCard,aside.firstChild);
 const signedIn=cosmiSignedIn(),isDeveloper=!!(cosmiAuthUser?.role==='developer'&&cosmiAuthUser?.isDeveloper===true),authEntry=['auth','↪','Sign in/up'];
 const desktopItems=signedIn?NAV.filter(n=>n[0]!=='sky').concat(isDeveloper?[['developer','⚙','Developer']]:[]):NAV.filter(n=>n[0]!=='sky'&&n[0]!=='me').concat([authEntry]);
-$('#desktopNav').innerHTML=`<div class="logo"><span class="vaani-wordmark"><img class="vaani-mark" src="/assets/graha-venus.webp" alt="">VAANI</span></div>`+desktopItems.map(n=>`<button data-act="${n[0]==='auth'?'auth':'nav'}" data-id="${n[0]}" class="${v===n[0]?'on':''}"><span class="g">${n[1]}</span>${n[2]}</button>`).join('')+`
+$('#desktopNav').innerHTML=`<div class="logo"><img class="vaani-full-logo" src="/assets/vaani-logo.webp" alt="Vaani"></div>`+desktopItems.map(n=>`<button data-act="${n[0]==='auth'?'auth':'nav'}" data-id="${n[0]}" class="${v===n[0]?'on':''}"><span class="g">${n[1]}</span>${n[2]}</button>`).join('')+`
 <button class="nav-utility-button ${S.topPanel==='notifications'?'on':''}" data-act="topPanel" data-id="notifications"><span class="g"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></span>Notifications</button>
 <button class="nav-utility-button ${S.topPanel==='messages'?'on':''}" data-act="topPanel" data-id="messages"><span class="g"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/></svg></span>Messages</button>
 <div id="desktopNavPanel" class="desktop-nav-panel" ${S.topPanel?'':'hidden'}><strong>${S.topPanel==='notifications'?'Notifications':'Direct messages'}</strong><p>${S.topPanel==='notifications'?'You’re all caught up. New activity will appear here.':'Direct messages are not available yet.'}</p></div>`;
 const mobileItems=signedIn?NAV:NAV.filter(n=>n[0]!=='me').concat([authEntry]);
 $('#mobileNav').innerHTML=mobileItems.map(n=>`<button data-act="${n[0]==='auth'?'auth':'nav'}" data-id="${n[0]}" class="${v===n[0]?'on':''}"><span class="g">${n[1]}</span>${n[2]}</button>`).join('');
-$('#ttl').innerHTML=(v==='home'?'<span class="brand-word vaani-wordmark"><img class="vaani-mark" src="/assets/graha-venus.webp" alt="">VAANI</span>':'<img class="top-brand-icon" src="/assets/graha-venus.webp" alt="">'+TT[v]);$('#ttl').classList.toggle('home-brand',v==='home');$('#fab').hidden=v!=='home';document.querySelector('.app')?.classList.toggle('sky-view',v==='sky');$('#role').style.display='none';
+$('#ttl').innerHTML=(v==='home'?'<img class="vaani-full-logo mobile-vaani-logo" src="/assets/vaani-logo.webp" alt="Vaani">':TT[v]);$('#ttl').classList.toggle('home-brand',v==='home');$('#fab').hidden=v!=='home';document.querySelector('.app')?.classList.toggle('sky-view',v==='sky');$('#role').style.display='none';
 $('#topPopover').hidden=!S.topPanel;if(S.topPanel){$('#topPopoverTitle').textContent=S.topPanel==='notifications'?'Notifications':'Direct messages';$('#topPopoverText').textContent=S.topPanel==='notifications'?'You’re all caught up. New activity will appear here.':'Direct messages are not available yet.'}
 $('#view').innerHTML={home,sky:liveSky,ask,pros,me,developer}[v]();
 renderAuthOverlay();
