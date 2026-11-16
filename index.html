@@ -720,12 +720,21 @@ $('#mobileNav').innerHTML=mobileItems.map(n=>`<button data-act="${n[0]==='auth'?
 $('#ttl').innerHTML=(v==='home'?'<span class="brand-word cosmi-wordmark">C<img class="cosmi-o" src="/assets/graha-venus.webp" alt="O">SMI</span>':'<img class="top-brand-icon" src="/assets/graha-venus.webp" alt="">'+TT[v]);$('#ttl').classList.toggle('home-brand',v==='home');$('#fab').hidden=v!=='home';document.querySelector('.app')?.classList.toggle('sky-view',v==='sky');$('#role').style.display='none';
 $('#topPopover').hidden=!S.topPanel;if(S.topPanel){$('#topPopoverTitle').textContent=S.topPanel==='notifications'?'Notifications':'Direct messages';$('#topPopoverText').textContent=S.topPanel==='notifications'?'You’re all caught up. New activity will appear here.':'Direct messages are not available yet.'}
 $('#view').innerHTML={home,sky:liveSky,ask,pros,me}[v]();
+if(v!=='sky'&&!skyChartInitialized){
+ requestAnimationFrame(()=>{
+  if(!skyChartInitialized&&document.querySelector('.sky #wheel')){
+   updatePlanetPanel();
+   skyChartInitialized=true;
+  }
+ });
+}
 if(v==='sky'){
  skyCard=app?.querySelector('.sky');
  const host=$('#liveSkyHost');
  if(host&&skyCard)host.appendChild(skyCard);
  if(!skyRefreshTimer){
   updatePlanetPanel();
+  skyChartInitialized=true;
   skyRefreshTimer=setInterval(updatePlanetPanel,30000);
  }
  if(!selectedCity&&!ipPresetStarted){ipPresetStarted=true;presetCityFromIP()}
@@ -752,6 +761,7 @@ let chartStyle='north';
 let selectedCity=null;
 let citySearchTimer=null;
 let skyRefreshTimer=null;
+let skyChartInitialized=false;
 let ipPresetStarted=false;
 let citySelectionVersion=0;
 const ZODIAC=['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
