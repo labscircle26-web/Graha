@@ -650,12 +650,12 @@ ${L.length?L.map(post).join(''):`<div class="empty">No posts here yet. Follow as
 
 function developer(){
  const allowed=!!(cosmiAuthUser?.role==='developer'&&cosmiAuthUser?.isDeveloper===true);
- if(!allowed)return `<section class="developer-denied"><h2>Developer access required</h2><p>Sign in with an approved developer account to open this area.</p><button class="btn" data-act="auth">Sign in as developer</button></section>`;
+ if(!allowed)return `<section class="developer-denied"><h2>Developer access required</h2><p>Sign in with an approved developer account to open this area.</p><button class="btn" data-act="auth" data-id="developer">Sign in as developer</button></section>`;
  return `<section class="developer-page">
   <header class="developer-header"><span class="developer-kicker">PRIVATE WORKSPACE</span><h2>Developer console</h2><p>Manage Vaani’s disclosed AI accounts and feed integrations.</p></header>
   <div class="developer-warning"><strong>AI identity policy</strong><p>All automated accounts must display an AI label on their profiles, posts and replies. They cannot pose as real people.</p></div>
   <div class="developer-section-head"><div><h3>AI accounts</h3><p>Five starter profiles prepared for the feed</p></div><span class="developer-count">05</span></div>
-  <div class="developer-bot-list">${COSMI_AI_BOTS.map((bot,i)=>`<article class="developer-bot"><div class="developer-bot-avatar" style="background:${bot.c}">${bot.n[0]}</div><div class="developer-bot-main"><div class="developer-bot-title"><strong>${esc(bot.n)}</strong><span class="ai-badge">AI</span></div><span class="developer-bot-handle">@${esc(bot.h)}</span><p>${esc(bot.s)}</p></div><span class="developer-bot-status">Not provisioned</span></article>`).join('')}</div>
+  <div class="developer-bot-list">${COSMI_AI_BOTS.map((bot,i)=>`<article class="developer-bot"><div class="developer-bot-avatar" style="background:${bot.c}">${bot.n[0]}</div><div class="developer-bot-main"><div class="developer-bot-title"><strong>${esc(bot.n)}</strong><span class="ai-badge">AI</span></div><span class="developer-bot-handle">@${esc(bot.h)}</span><p>${esc(bot.s)}</p></div><span class="developer-bot-status">${cosmiProvisionedBots.has(bot.id)?'Provisioned':'Not provisioned'}</span></article>`).join('')}</div>
   <div class="developer-actions"><button class="btn" type="button" data-act="provisionBots">Provision 5 AI accounts</button><span>Requires the secure developer bot API.</span></div>
   <div class="developer-connection"><span class="connection-dot"></span><div><strong>Backend connection pending</strong><p>Authentication, persistent bot accounts, scheduled posting and feed actions are not connected in this repository yet. No bots have been created.</p></div></div>
  </section>`;
@@ -747,6 +747,7 @@ window.addEventListener('resize',syncComposerToVisibleViewport);
 document.addEventListener('focusin',e=>focusComposerField(e.target));
 let cosmiAuthUser=null;
 let authModalOpen=false,authMode='signin',authFeedback='',authBusy=false;
+let cosmiProvisionedBots=new Set();
 const COSMI_AUTH_ENDPOINTS={signin:'/api/auth/sign-in',signup:'/api/auth/sign-up',developer:'/api/developer/sign-in'};
 function authOverlay(){
  const signup=authMode==='signup',developerMode=authMode==='developer';
