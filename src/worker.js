@@ -162,7 +162,10 @@ async function createSession(request, sql, user) {
   const tokenHash = await sha256Hex(token);
   const expiresAt = new Date(Date.now() + SESSION_TTL_SECONDS * 1000).toISOString();
   await query(sql, [
-    'INSERT INTO app_sessions (token_hash, user_id, expires_at) VALUES (', ', ', ', ')
+    'INSERT INTO app_sessions (token_hash, user_id, expires_at) VALUES (',
+    ', ',
+    ', ',
+    ')'
   ], tokenHash, user.id, expiresAt);
   await query(sql, ['UPDATE app_users SET last_login_at = now() WHERE id = ', ''], user.id);
   return json({ ok: true, user: publicUser(user) }, 200, { 'Set-Cookie': sessionCookie(token) });
@@ -210,9 +213,14 @@ async function signUp(request, sql) {
   const id = crypto.randomUUID();
   try {
     const rows = await query(sql, [
-      'INSERT INTO app_users (id, email, display_name, account_type, role, is_developer, password_hash, email_verified) ' +
-      'VALUES (', ', ', ', ', ', ', ', ', ', ', false) ' +
-      'RETURNING id, email, display_name, account_type, role, is_developer'
+      'INSERT INTO app_users (id, email, display_name, account_type, role, is_developer, password_hash, email_verified) VALUES (',
+      ', ',
+      ', ',
+      ', ',
+      ', ',
+      ', ',
+      ', ',
+      ', false) RETURNING id, email, display_name, account_type, role, is_developer'
     ], id, email, displayName, accountType, 'user', false, passwordHash);
     return createSession(request, sql, rows[0]);
   } catch (error) {
